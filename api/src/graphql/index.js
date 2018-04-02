@@ -2,7 +2,6 @@
 
 const graphqlHTTP = require('express-graphql')
 const { buildSchema } = require('graphql')
-const implementation        = require('../graphql')
 
 var fs        = require('fs');
 var path      = require('path');

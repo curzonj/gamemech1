@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec reflex -s -r '\.js$' -R '^node_modules' heroku local:start

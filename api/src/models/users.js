@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-    const model = sequelize.define("user", {
+    const model = sequelize.define("users", {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,

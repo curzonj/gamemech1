@@ -24,11 +24,11 @@ passport.use(new GoogleStrategy({
   callbackURL: config.get('OAUTH2_CALLBACK'),
   accessType: 'offline'
 }, (accessToken, refreshToken, profile, cb) => {
-  db.user.findOne({
+  db.users.findOne({
     where: { google_id: profile.id, }
   }).then(user => {
     if (user == null) {
-      return db.user.create({
+      return db.users.create({
         id: uuidv4(),
         google_id: profile.id,
         google_name: profile.displayName,
@@ -47,7 +47,7 @@ passport.serializeUser((user, cb) => {
   cb(null, user.id)
 })
 passport.deserializeUser((obj, cb) => {
-  db.user.findById(obj).then(user => {
+  db.users.findById(obj).then(user => {
     cb(null, user)
   }).catch(err => {
     cb(err, null)
