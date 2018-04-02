@@ -12,7 +12,7 @@
             "name": "Earth"
         }
     ],
-    "templates": [
+    "meta_types": [
         {
             "id": "36e325bb-750b-4c98-bffb-814d1d5ba81c",
             "name": "Ore Mine",
@@ -36,6 +36,46 @@
         {
             "id": "ac38ecde-cdd5-47f5-9eaf-b1c50c1a3dc1",
             "name": "Laboratory",
+            "details": { }
+        }
+    ],
+    "asset_types": [
+        {
+            "id": "0af57950-5d29-47f4-96c2-0f3453f46262",
+            "name": "Iron Ore"
+        },
+        {
+            "id": "726a4c1b-dcb2-4eb0-a557-9fcae845eb5a",
+            "name": "Steel"
+        },
+        {
+            "id": "524d24b9-4a38-490a-bbd8-0a2317207097",
+            "meta_type_id": "36e325bb-750b-4c98-bffb-814d1d5ba81c",
+            "name": "Basic Ore Mine",
+            "details": { }
+        },
+        {
+            "id": "a53e6cbc-335c-4748-9028-1fe40ebd971d",
+            "meta_type_id": "99efda19-b8cb-47fb-9c09-a3d4573b38eb",
+            "name": "Basic Foundry",
+            "details": { }
+        },
+        {
+            "id": "3fae2147-2edf-4528-ad97-fddac0911b7a",
+            "meta_type_id": "d34b7011-5049-4a2a-9e24-816c2de775cc",
+            "name": "Basic Factory",
+            "details": { }
+        },
+        {
+            "id": "ab10a212-73e0-427f-b058-13d972218be9",
+            "meta_type_id": "d34b7011-5049-4a2a-9e24-816c2de775cc",
+            "name": "Basic Shipyard",
+            "details": { }
+        },
+        {
+            "id": "a7a19fdf-188d-4698-9d5b-ad1c746091bb",
+            "meta_type_id": "ac38ecde-cdd5-47f5-9eaf-b1c50c1a3dc1",
+            "name": "Basic Laboratory",
             "details": { }
         }
     ]

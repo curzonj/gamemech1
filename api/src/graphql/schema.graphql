@@ -1,3 +1,16 @@
+type Query {
+    hello: String
+    "You may specify `self` as the user ID to query the authenticated user"
+    user(id: String!): User
+    users: [User]
+    solar_systems: [SolarSystem]
+    structures: [Structure]
+}
+
+type Mutation {
+  createFreeFactory(site_id: String!): Structure
+}
+
 type User {
     id: String
     google_id: String
@@ -7,20 +20,25 @@ type User {
 type SolarSystem {
     id: String
     name: String
+    sites: [Site]
 }
 
-type Query {
-    hello: String
-    "You may specify `self` as the user ID to query the authenticated user"
-    user(id: String!): User
-    users: [User]
-    solar_systems: [SolarSystem]
+type Site {
+    id: String
+    solar_system: SolarSystem
+    name: String
+    structures: [Structure]
 }
 
-input SolarSystemInput {
-    name: String!
+type AssetType {
+    id: String
+    name: String
 }
 
-type Mutation {
-  createSolarSystem(input: SolarSystemInput!): SolarSystem
+type Structure {
+    id: String
+    owner: User
+    solar_system: SolarSystem
+    site: Site
+    asset_type: AssetType
 }

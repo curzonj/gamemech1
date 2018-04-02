@@ -30,9 +30,7 @@ CREATE TABLE sites (
 
 CREATE TABLE structures (
   id uuid PRIMARY KEY,
-  type_id uuid NOT NULL,
-
-  solar_system_id uuid NOT NULL,
+  asset_type_id uuid NOT NULL,
   site_id uuid NOT NULL,
 
   owner_id uuid NOT NULL,
@@ -54,14 +52,12 @@ CREATE TABLE production_jobs (
 
 CREATE TABLE resources (
   id uuid PRIMARY KEY,
-
-  solar_system_id uuid NOT NULL,
   site_id uuid NOT NULL,
 
   details jsonb
 );
 
-CREATE TABLE templates (
+CREATE TABLE meta_types (
   id uuid PRIMARY KEY,
   name text UNIQUE NOT NULL,
   
@@ -70,7 +66,7 @@ CREATE TABLE templates (
 
 CREATE TABLE designs (
   id uuid PRIMARY KEY,
-  template_id uuid NOT NULL,
+  meta_type_id uuid NOT NULL,
 
   owner_id uuid NOT NULL,
   owner_type owner_type_name NOT NULL,
@@ -78,10 +74,11 @@ CREATE TABLE designs (
   details jsonb
 );
 
-CREATE TABLE types (
+CREATE TABLE asset_types (
   id uuid PRIMARY KEY,
-  template_id uuid NOT NULL,
+  meta_type_id uuid,
   design_id uuid,
+  name text NOT NULL,
 
   details jsonb
 );
@@ -89,11 +86,9 @@ CREATE TABLE types (
 CREATE TABLE assets (
   owner_id uuid NOT NULL,
   owner_type owner_type_name NOT NULL,
-
-  solar_system_id uuid,
   site_id uuid,
 
-  type_id uuid NOT NULL,
+  asset_type_id uuid NOT NULL,
 
-  PRIMARY KEY(owner_id, site_id, type_id)
+  PRIMARY KEY(owner_id, site_id, asset_type_id)
 );

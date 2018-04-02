@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-    const model = sequelize.define("templates", {
+    const model = sequelize.define("meta_types", {
         id: {
             type: DataTypes.UUID,
             primaryKey: true,

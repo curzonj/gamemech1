@@ -15,5 +15,15 @@ module.exports = function(sequelize, DataTypes) {
         timestamps: false,
     })
 
+    model.associate = function(db) {
+        model.hasMany(db.sites, {
+            foreignKey: "solar_system_id",
+        })
+    }
+
+    model.prototype.sites = function(a, r, g) {
+        return this.getSites()
+    }
+
     return model
 }
