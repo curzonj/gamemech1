@@ -15,6 +15,7 @@ CREATE TABLE accounts (
 
 CREATE TABLE solar_systems (
   id uuid PRIMARY KEY,
+  name varchar UNIQUE NOT NULL,
 
   details jsonb
 );

@@ -4,9 +4,23 @@ type User {
     google_name: String
 }
 
+type SolarSystem {
+    id: String
+    name: String
+}
+
 type Query {
     hello: String
     "You may specify `self` as the user ID to query the authenticated user"
     user(id: String!): User
     users: [User]
+    solar_systems: [SolarSystem]
+}
+
+input SolarSystemInput {
+    name: String!
+}
+
+type Mutation {
+  createSolarSystem(input: SolarSystemInput!): SolarSystem
 }
