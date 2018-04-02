@@ -1,0 +1,11 @@
+{
+    "solar_systems": [
+        {
+            "id": "832c1ae7-4da5-46bf-a1bf-e24fed17716c",
+            "name": "Vylade",
+            "details": {
+                "bob": "fred"
+            }
+        }
+    ]
+}

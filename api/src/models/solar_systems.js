@@ -8,6 +8,9 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             unique: true,
         },
+        details: {
+            type: DataTypes.JSONB
+        },
     }, {
         timestamps: false,
     })

@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+'use strict';
+
+console.log("seeding the database")
+
+const db = require('../src/models')
+const seeds = require('../config/seeds.json')
+const Promise = require("bluebird")
+
+Promise.resolve(Object.keys(seeds))
+    .each(modelName => {
+        return Promise.resolve(seeds[modelName])
+            .each(obj => {
+                var m = db[modelName]
+                return m.findById(obj.id).then(res => {
+                    if (res == null) {
+                        return m.create(obj)
+                    } else {
+                        return m.update(obj, {
+                            where: { id: obj.id }
+                        })
+                    }
+                })
+            })
+    }).then(() => {
+        console.log("seeding complete")
+    }).catch(err => {
+        console.log(`error: ${err}`)
+    }).then(() => {
+        process.exit(0)
+    })

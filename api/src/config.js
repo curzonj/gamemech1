@@ -14,12 +14,14 @@ nconf
         'OAUTH2_CLIENT_ID',
         'OAUTH2_CLIENT_SECRET',
         'OAUTH2_CALLBACK',
-        'SESSION_SECRET'
+        'SESSION_SECRET',
+        'DATABASE_URL',
     ])
     .defaults({
 
     })
 
+requireValue('DATABASE_URL')
 requireValue('OAUTH2_CLIENT_ID')
 requireValue('OAUTH2_CLIENT_SECRET')
 requireValue('OAUTH2_CALLBACK')
