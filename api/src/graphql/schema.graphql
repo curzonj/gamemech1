@@ -1,0 +1,12 @@
+type User {
+    id: String
+    google_id: String
+    google_name: String
+}
+
+type Query {
+    hello: String
+    "You may specify `self` as the user ID to query the authenticated user"
+    user(id: String!): User
+    users: [User]
+}

@@ -1,6 +1,7 @@
 CREATE TABLE users (
   id uuid PRIMARY KEY,
-  google_id varchar(255) UNIQUE NOT NULL
+  google_id varchar(255) UNIQUE NOT NULL,
+  google_name text
 );
 
 CREATE TYPE owner_type_name AS ENUM ('account', 'corporation');

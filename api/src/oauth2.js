@@ -28,14 +28,10 @@ passport.use(new GoogleStrategy({
     where: { google_id: profile.id, }
   }).then(user => {
     if (user == null) {
-      var new_id = uuidv4()
       return db.user.create({
-        id: new_id,
+        id: uuidv4(),
         google_id: profile.id,
-      }).then(() => {
-        return db.user.findOne({
-          where: { id: new_id }
-        })
+        google_name: profile.displayName,
       })
     } else {
       return user
