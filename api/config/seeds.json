@@ -2,10 +2,41 @@
     "solar_systems": [
         {
             "id": "832c1ae7-4da5-46bf-a1bf-e24fed17716c",
-            "name": "Vylade",
-            "details": {
-                "bob": "fred"
-            }
+            "name": "Sol"
+        }
+    ],
+    "sites": [
+        {
+            "id": "2adb8400-9f77-4ada-8688-b7c874fa46c4",
+            "solar_system_id": "832c1ae7-4da5-46bf-a1bf-e24fed17716c",
+            "name": "Earth"
+        }
+    ],
+    "templates": [
+        {
+            "id": "36e325bb-750b-4c98-bffb-814d1d5ba81c",
+            "name": "Ore Mine",
+            "details": { }
+        },
+        {
+            "id": "99efda19-b8cb-47fb-9c09-a3d4573b38eb",
+            "name": "Foundry",
+            "details": { }
+        },
+        {
+            "id": "d34b7011-5049-4a2a-9e24-816c2de775cc",
+            "name": "Factory",
+            "details": { }
+        },
+        {
+            "id": "d34b7011-5049-4a2a-9e24-816c2de775cc",
+            "name": "Shipyard",
+            "details": { }
+        },
+        {
+            "id": "ac38ecde-cdd5-47f5-9eaf-b1c50c1a3dc1",
+            "name": "Laboratory",
+            "details": { }
         }
     ]
 }

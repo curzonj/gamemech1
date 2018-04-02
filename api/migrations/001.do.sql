@@ -1,6 +1,6 @@
 CREATE TABLE users (
   id uuid PRIMARY KEY,
-  google_id varchar(255) UNIQUE NOT NULL,
+  google_id text UNIQUE NOT NULL,
   google_name text
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE accounts (
 
 CREATE TABLE solar_systems (
   id uuid PRIMARY KEY,
-  name varchar UNIQUE NOT NULL,
+  name text UNIQUE NOT NULL,
 
   details jsonb
 );
@@ -23,6 +23,7 @@ CREATE TABLE solar_systems (
 CREATE TABLE sites (
   id uuid PRIMARY KEY,
   solar_system_id uuid NOT NULL,
+  name text NOT NULL,
 
   details jsonb
 );
@@ -62,6 +63,7 @@ CREATE TABLE resources (
 
 CREATE TABLE templates (
   id uuid PRIMARY KEY,
+  name text UNIQUE NOT NULL,
   
   details jsonb
 );
@@ -78,7 +80,20 @@ CREATE TABLE designs (
 
 CREATE TABLE types (
   id uuid PRIMARY KEY,
+  template_id uuid NOT NULL,
   design_id uuid,
 
   details jsonb
+);
+
+CREATE TABLE assets (
+  owner_id uuid NOT NULL,
+  owner_type owner_type_name NOT NULL,
+
+  solar_system_id uuid,
+  site_id uuid,
+
+  type_id uuid NOT NULL,
+
+  PRIMARY KEY(owner_id, site_id, type_id)
 );

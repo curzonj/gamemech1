@@ -8,5 +8,6 @@ DROP TABLE IF EXISTS resources;
 DROP TABLE IF EXISTS templates;
 DROP TABLE IF EXISTS designs;
 DROP TABLE IF EXISTS types;
+DROP TABLE IF EXISTS assets;
 
 DROP TYPE IF EXISTS owner_type_name;

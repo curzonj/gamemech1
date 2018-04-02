@@ -10,9 +10,14 @@ const Promise = require("bluebird")
 
 Promise.resolve(Object.keys(seeds))
     .each(modelName => {
+        const m = db[modelName]
+        if (m === undefined) {
+            console.log(`error: no model for ${modelName}`)
+            process.exit(1)
+        }
+
         return Promise.resolve(seeds[modelName])
             .each(obj => {
-                var m = db[modelName]
                 return m.findById(obj.id).then(res => {
                     if (res == null) {
                         return m.create(obj)
