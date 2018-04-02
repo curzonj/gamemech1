@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var database_url = process.env.DATABASE_URL || process.env.AUTH_DATABASE_URL;
+if (database_url === undefined)  {
+    console.log("Either run with forego or provide a DATABASE_URL");
+    process.exit(1);
+}
+
+const Postgrator = require('postgrator')
+const postgrator = new Postgrator({
+    migrationDirectory: __dirname + '/../migrations',
+    driver: 'pg',
+    connectionString: database_url
+}); 
+
+postgrator.migrate(process.argv[2])
+    .then(appliedMigrations => console.log(appliedMigrations))
+    .catch(error => {
+        console.log(error)
+        // Because migrations prior to the migration with error would have run
+        // error object is decorated with appliedMigrations
+        console.log(error.appliedMigrations) // array of migration objects
+    })
