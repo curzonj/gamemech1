@@ -8,7 +8,7 @@ exports.resolvers = {
     Query: { hello }
 }
 
-function hello(parentValue, req, query) {
+function hello(root, args, req, info) {
     let name = "Anonymous Stranger"
     if (req.user) {
         name = req.user.username
