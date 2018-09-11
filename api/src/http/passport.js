@@ -5,7 +5,7 @@ const db = require('../models')
 
 const discord_scopes = [ 'identify', 'email' ]
 
-function translateDiscordProfileToUser(accessToken, refreshToken, profile, done) {
+function translateDiscordProfileToAccount(accessToken, refreshToken, profile, done) {
     profile.refreshToken = refreshToken
     profile.scopes = discord_scopes
 
@@ -18,19 +18,21 @@ function translateDiscordProfileToUser(accessToken, refreshToken, profile, done)
             await user.update({discord_details: profile})
         }
 
-        done(null, user)
+        let account = await user.getGameAccount()
+
+        done(null, account)
     })
     .catch(err => done(err))
 }
 
 module.exports = function(passport) {
-    passport.serializeUser(function(user, done) {
-        done(null, user.id);
+    passport.serializeUser(function(account, done) {
+        done(null, account.id);
     });
     passport.deserializeUser(function(obj, done) {
-        db.user_profiles.findById(obj)
-        .then(user => {
-            done(null, user)
+        db.game_accounts.findById(obj)
+        .then(account => {
+            done(null, account)
         })
         .catch(err => done(err))
     });
@@ -41,14 +43,14 @@ module.exports = function(passport) {
         clientSecret: config.get('DISCORD_OAUTH_CLIENT_SECRET'),
         callbackURL: 'http://localhost:3001/auth/discord/callback',
         scope: discord_scopes,
-    }, translateDiscordProfileToUser))
+    }, translateDiscordProfileToAccount))
 
     const browserDiscordStrategy = new DiscordStrategy({
         clientID: config.get('DISCORD_OAUTH_CLIENT_ID'),
         clientSecret: config.get('DISCORD_OAUTH_CLIENT_SECRET'),
         callbackURL: 'http://localhost:3000/auth/discord/callback',
         scope: discord_scopes,
-    }, translateDiscordProfileToUser)
+    }, translateDiscordProfileToAccount)
     browserDiscordStrategy.name = 'browserDiscord'
     passport.use(browserDiscordStrategy)
 
@@ -57,9 +59,9 @@ module.exports = function(passport) {
         secretOrKey: config.get("JWT_SECRET"),
     }
     passport.use(new JwtStrategy(jwt_opts, function(jwt_payload, done) {
-        db.user_profiles.findById(jwt_payload.user_id)
-        .then(user => {
-            done(null, user)
+        db.game_accounts.findById(jwt_payload.account_id)
+        .then(account => {
+            done(null, account)
         })
         .catch(err => done(err))
     }));

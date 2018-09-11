@@ -8,24 +8,28 @@ create table schemaless (
 
 create index type_idx on schemaless (type);
 
+create table game_accounts (
+  id bigserial primary key,
+
+  details jsonb,
+
+  created_at timestamp with time zone,
+  updated_at timestamp with time zone
+);
+
 create table user_profiles (
   id bigserial primary key,
 
   discord_id text unique not null,
   discord_details jsonb not null,
 
+  game_account_id bigint references game_accounts (id),
+
   created_at timestamp with time zone,
   updated_at timestamp with time zone
 );
 
 create index discord_id_idx on user_profiles (discord_id);
-
-create table game_accounts (
-  id bigserial primary key,
-  user_profile_id bigint not null references user_profiles (id),
-
-  details jsonb
-);
 
 create table timer_queues (
   id bigserial primary key,

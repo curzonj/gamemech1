@@ -11,7 +11,7 @@ exports.resolvers = {
 function hello(root, args, req, info) {
     let name = "Anonymous Stranger"
     if (req.user) {
-        name = req.user.discord_details.username
+        name = req.user.details.nickname
     }
     return `Hello ${name}!`;
 }

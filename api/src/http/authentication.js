@@ -51,7 +51,7 @@ module.exports = function(app) {
     
     app.post('/login', passport.authenticate('browserDiscord'),
         function(req, res) {
-            var token = jwt.sign({ user_id: req.user.id, }, config.get("JWT_SECRET"))
+            var token = jwt.sign({ account_id: req.user.id, }, config.get("JWT_SECRET"))
             res.send(token)
         });
     
