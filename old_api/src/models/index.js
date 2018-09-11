@@ -4,10 +4,10 @@ const fs        = require('fs');
 const path      = require('path');
 const Sequelize = require('sequelize');
 const basename  = path.basename(__filename);
-const config    = require('../config')
-var db        = { models: [] };
+const config = require('../config') 
+var db        = {};
 
-var sequelize = new Sequelize(config.get("DATABASE_URL"), {
+var sequelize = new Sequelize(config.get('DATABASE_URL'), {
 
 });
 
@@ -19,7 +19,6 @@ fs
   .forEach(file => {
     var model = sequelize['import'](path.join(__dirname, file));
     db[model.name] = model;
-    db.models.push(model)
   });
 
 Object.keys(db).forEach(modelName => {

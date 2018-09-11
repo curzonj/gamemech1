@@ -1,94 +1,41 @@
-CREATE TABLE users (
-  id uuid PRIMARY KEY,
-  google_id text UNIQUE NOT NULL,
-  google_name text
+CREATE TABLE schemaless (
+  type text NOT NULL,
+  details jsonb,
+
+  created_at TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE TYPE owner_type_name AS ENUM ('account', 'corporation');
+CREATE INDEX type_idx ON schemaless (type);
 
-CREATE TABLE accounts (
-  id uuid PRIMARY KEY,
-  user_id uuid NOT NULL,
+CREATE TABLE timer_queues (
+  id BIGSERIAL PRIMARY KEY,
+
+  blocked_type text,
+  blocked_container bigint,
+  blocked_quantity bigint
+);
+
+CREATE INDEX timer_queue_blockage_idx ON timer_queues (blocked_type, blocked_container, blocked_quantity);
+
+CREATE TABLE timers (
+  id BIGSERIAL PRIMARY KEY,
+
+  handler text NOT NULL,
+  trigger_at TIMESTAMP WITH TIME ZONE,
+
+  queue_id bigint REFERENCES timer_queues (id),
+  next_id bigint REFERENCES timers (id),
+  list_head boolean NOT NULL default false,
 
   details jsonb
 );
 
-CREATE TABLE solar_systems (
-  id uuid PRIMARY KEY,
-  name text UNIQUE NOT NULL,
-
-  details jsonb
-);
-
-CREATE TABLE sites (
-  id uuid PRIMARY KEY,
-  solar_system_id uuid NOT NULL,
-  name text NOT NULL,
-
-  details jsonb
-);
-
-CREATE TABLE structures (
-  id uuid PRIMARY KEY,
-  asset_type_id uuid NOT NULL,
-  site_id uuid NOT NULL,
-
-  owner_id uuid NOT NULL,
-  owner_type owner_type_name NOT NULL,
-
-  details jsonb
-);
-
-CREATE TABLE production_jobs (
-  id uuid PRIMARY KEY,
-  structure_id uuid NOT NULL,
-
-  owner_id uuid NOT NULL,
-  owner_type owner_type_name NOT NULL,
-
-  created_at timestamp,
-  details jsonb
-);
-
-CREATE TABLE resources (
-  id uuid PRIMARY KEY,
-  site_id uuid NOT NULL,
-
-  details jsonb
-);
-
-CREATE TABLE meta_types (
-  id uuid PRIMARY KEY,
-  name text UNIQUE NOT NULL,
-  
-  details jsonb
-);
-
-CREATE TABLE designs (
-  id uuid PRIMARY KEY,
-  meta_type_id uuid NOT NULL,
-
-  owner_id uuid NOT NULL,
-  owner_type owner_type_name NOT NULL,
-
-  details jsonb
-);
-
-CREATE TABLE asset_types (
-  id uuid PRIMARY KEY,
-  meta_type_id uuid,
-  design_id uuid,
-  name text NOT NULL,
-
-  details jsonb
-);
+CREATE INDEX trigger_at_idx ON timers (trigger_at) WHERE trigger_at IS NOT NULL;
+CREATE INDEX queue_id_next_id_idx ON timers (queue_id, next_id) WHERE queue_id IS NOT NULL;
+CREATE UNIQUE INDEX queue_id_list_head_idx ON timers (queue_id) WHERE list_head AND queue_id IS NOT NULL;
 
 CREATE TABLE assets (
-  owner_id uuid NOT NULL,
-  owner_type owner_type_name NOT NULL,
-  site_id uuid,
-
-  asset_type_id uuid NOT NULL,
-
-  PRIMARY KEY(owner_id, site_id, asset_type_id)
+  id text PRIMARY KEY,
+  amount integer NOT NULL
 );

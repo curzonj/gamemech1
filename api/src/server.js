@@ -1,44 +1,42 @@
-const express = require('express')
-const passport = require('passport')
-const morgan = require('morgan')
-const session = require('cookie-session')
-
 const config = require('./config')
-const oauth2 = require('./oauth2')
+const express = require('express')
+const http = require('http')
+const morgan       = require('morgan');
+const graphqlHTTP = require('express-graphql');
+const { buildSchema } = require('graphql');
+const cors = require('cors')
+const schema = require('./graphql').schema
+const startSimulation = require('./event/processor')
 
 const app = express()
+const server = http.createServer(app);
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+app.use(morgan('dev')); // log every request to the console
+app.use(cors())
 
-// TODO figure out what all the standard sets are
-app.set('env', process.env.NODE_ENV)
+require('./http/authentication')(app)
 
-app.set('trust proxy', 1) // trust first proxy
-app.use(session({
-  name: 'session',
-  secret: config.get('SESSION_SECRET'),
-  secure: (app.get('env') === 'production')
+app.get('/', (req, res) => res.send(req.user ? 'Authenticated': 'Unauthenticated'))
+app.get('/health', (req, res) => res.send('OK'))
+
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true,
+  formatError: error => {
+    console.log(error, error.stack)
+
+    return {
+      message: error.message,
+      locations: error.locations,
+      stack: error.stack ? error.stack.split('\n') : [],
+      path: error.path
+    }
+  },
 }))
 
-// OAuth2
-app.use(passport.initialize())
-app.use(passport.session())
-app.use(oauth2.router)
-
-const authenticated = express.Router()
-authenticated.use(oauth2.required)
-authenticated.use('/', require('./routes'))
-app.use(authenticated)
-
-// Basic error handler
-app.use((err, req, res, next) => {
-  /* jshint unused:false */
-  console.error(err);
-  // If our routes specified a specific response, then send that. Otherwise,
-  // send a generic message so as not to leak anything.
-  res.status(500).send(err.response || 'Something broke!');
+server.on('error', function (e) {
+  console.log(e)
 });
 
-app.listen(process.env.PORT, function() {
-  console.log(`at=listen port=${process.env.PORT}`)
-})
+startSimulation()
+server.listen(config.get('PORT'));
