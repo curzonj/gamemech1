@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { logout, redirectAuthentication } from './authentication'
-
-const Store = require('locallyjs').Store
-const storageAPI = new Store()
+import * as auth from './authentication'
 
 function graphql(q) {
   const headers = {
@@ -12,18 +9,23 @@ function graphql(q) {
     'Accept': 'application/json',
   }
 
-  const authToken = storageAPI.get('authToken')
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`
-  }
+  auth.injectAuthHeader(headers)
 
   return fetch(`${process.env.REACT_APP_API_ENDPOINT}/graphql`, {
     method: 'POST',
     headers: headers,
     body: JSON.stringify({ query: q })
   })
-    .then(r => r.json())
-    .then(r => r.data)
+    .then(async r => {
+      let body = await r.json()
+
+      if (body.errors) {
+        console.log(body.errors)
+        throw new Error("Graphql request failed")
+      }
+
+      return body.data
+    })
 }
 
 class App extends Component {
@@ -47,9 +49,9 @@ class App extends Component {
     })
   }
 
-  login = redirectAuthentication
+  login = auth.redirectAuthentication
   logout = () => {
-    logout()
+    auth.logout()
 
     // TODO ideally the content would be observing our user session state via mobx and reload automatically
     this.fetchContent()

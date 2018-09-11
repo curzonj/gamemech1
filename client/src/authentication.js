@@ -6,6 +6,7 @@ export function handleOAuthCallback() {
       let params = new URLSearchParams(window.location.search)
       if (params.has("code")) {
         window.history.replaceState(window.history.state, document.title, '/')
+        storageAPI.remove("authToken")
 
         let code = params.get('code')
         return fetch(`${process.env.REACT_APP_API_ENDPOINT}/login?code=${code}`, {
@@ -15,10 +16,13 @@ export function handleOAuthCallback() {
             'Accept': 'application/json',
           }
         })
-          .then(r => r.text())
-          .then(data => {
-            console.log(data)
-            storageAPI.set("authToken", data)
+          .then(async r => {
+            let text = await r.text()
+            if (r.ok) {
+              storageAPI.set("authToken", text)
+            } else {
+              console.log(text)
+            }
           })
           .catch(err => {
             console.log(err)
@@ -35,5 +39,13 @@ export function redirectAuthentication() {
 
 export function logout() {
   // It's a JWT token so all we need to do to log out is lose it
-  storageAPI.set("authToken", null)
+  storageAPI.remove("authToken")
+}
+
+export function injectAuthHeader(headers) {
+  const authToken = storageAPI.get('authToken')
+  // Why is authToken null as a string? :shrug:
+  if (authToken !== null && authToken !== 'null') {
+    headers['Authorization'] = `Bearer ${authToken}`
+  }
 }

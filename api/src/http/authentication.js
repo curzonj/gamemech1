@@ -26,13 +26,13 @@ module.exports = function(app) {
             return next()
         }
     
-        passport.authenticate('jwt', { session: false }, function(err, user, info) {
+        passport.authenticate('jwt', function(err, user, info) {
             if (err || !user) {
                 console.log(err)
                 return next()
             }
     
-            req.logIn(user, function(err) {
+            req.logIn(user, { session: false }, function(err) {
                 if (err) {
                     console.log(err)
                 }
@@ -51,7 +51,7 @@ module.exports = function(app) {
     
     app.post('/login', passport.authenticate('browserDiscord'),
         function(req, res) {
-            var token = jwt.sign({ username: req.user.username, }, config.get("JWT_SECRET"))
+            var token = jwt.sign({ user_id: req.user.id, }, config.get("JWT_SECRET"))
             res.send(token)
         });
     
