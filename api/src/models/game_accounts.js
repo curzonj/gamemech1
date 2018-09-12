@@ -1,3 +1,5 @@
+const safe = require('../utils/try_catch')
+
 module.exports = function(sequelize, DataTypes) {
     const model = sequelize.define("game_accounts", {
         details: {
@@ -8,6 +10,32 @@ module.exports = function(sequelize, DataTypes) {
         createdAt: 'created_at',
         updatedAt: 'updated_at',
     })
+
+    model.typeDefs = `
+        extend type Query {
+            account(id: ID): GameAccount
+            accounts: [GameAccount]
+        }
+
+        type GameAccount {
+            id: ID!
+            details: GameAccountDetails
+        }
+
+        type GameAccountDetails {
+            nickname: String
+        }
+    `
+
+    model.resolvers = {
+        Query: {
+            account: (root, args, req, info) => {
+                let id = safe(() => args.id)
+                return (id ? model.findById(id) : req.user)
+            },
+            accounts: () => model.findAll(),
+        },
+    }
 
     return model
 }

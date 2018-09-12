@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import * as auth from './authentication'
+import * as auth from '../../authentication'
+import safe from '../../utils/try_catch'
 
 function graphql(q) {
   const headers = {
@@ -41,9 +42,12 @@ class App extends Component {
   fetchContent = () => {
     graphql(`
       query {
-        hello
+        account { details { nickname }}
       }`)
-    .then(data => this.setState({ text: data.hello }))
+    .then(data => {
+      let name = safe(() => data.account.details.nickname, "Anonymous Stranger")
+      this.setState({ text: `Hello ${name}` })
+    })
     .catch(err => {
       console.log(err)
     })
