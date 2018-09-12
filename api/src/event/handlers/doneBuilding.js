@@ -2,14 +2,15 @@ const db = require('../../models');
 
 module.exports = {
   doneBuilding: {
-    complete(event, t, now) {
-      const trigger = new Date(now);
-      trigger.setSeconds(trigger.getSeconds() + 120);
+    complete({ game_account_id }, t, now) {
+      const trigger_at = new Date(now);
+      trigger_at.setSeconds(trigger_at.getSeconds() + 120);
 
       return Promise.all([
         db.assets.upsertOnConflict(
           {
-            id: 'factory',
+            game_account_id,
+            type: 'factory',
             amount: 1,
           },
           {
@@ -18,8 +19,9 @@ module.exports = {
         ),
         db.timers.create(
           {
+            game_account_id,
+            trigger_at,
             handler: 'factoryProduceIron',
-            trigger_at: trigger,
             interval_seconds: 120,
             details: {},
           },
@@ -30,11 +32,19 @@ module.exports = {
       ]);
     },
 
-    async prepare(details, t) {
-      const a = await db.assets.findById('tools', {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
-      });
+    async prepare({ game_account_id }, t) {
+      const a = await db.assets.findOne(
+        {
+          where: {
+            game_account_id,
+            type: 'tools',
+          },
+        },
+        {
+          transaction: t,
+          lock: t.LOCK.UPDATE,
+        }
+      );
 
       if (a === null || a.amount < 10) {
         return {

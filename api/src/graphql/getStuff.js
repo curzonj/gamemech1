@@ -12,10 +12,15 @@ exports.resolvers = {
   },
 };
 
-function getStuff() {
+function getStuff(root, args, req, info) {
+  if (!req.user) {
+    return;
+  }
+
   return db.assets
     .upsertOnConflict({
-      id: 'iron',
+      game_account_id: req.user.id,
+      type: 'iron',
       amount: 1,
     })
     .then(list => list[0]);

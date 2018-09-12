@@ -2,6 +2,9 @@ module.exports = function(sequelize, DataTypes) {
   const model = sequelize.define(
     'timers',
     {
+      game_account_id: {
+        type: DataTypes.INTEGER,
+      },
       handler: {
         type: DataTypes.STRING,
       },

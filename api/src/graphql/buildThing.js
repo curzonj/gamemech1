@@ -13,12 +13,17 @@ exports.resolvers = {
   },
 };
 
-function buildThing() {
-  return db.timer_queues.findOrCreateAny().then(queue =>
-    schedule({
-      handler: 'doneBuilding',
-      queue_id: queue.id,
-      details: {},
-    })
-  );
+async function buildThing(root, args, req, info) {
+  if (!req.user) {
+    return;
+  }
+
+  const queue = await db.timer_queues.findOrCreateAny();
+
+  return schedule({
+    game_account_id: req.user.id,
+    handler: 'doneBuilding',
+    queue_id: queue.id,
+    details: {},
+  });
 }

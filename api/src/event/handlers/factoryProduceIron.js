@@ -2,10 +2,11 @@ const db = require('../../models');
 
 module.exports = {
   factoryProduceIron: {
-    complete(details, t) {
+    complete({ game_account_id }, t) {
       return db.assets.upsertOnConflict(
         {
-          id: 'iron',
+          game_account_id,
+          type: 'iron',
           amount: 1,
         },
         {

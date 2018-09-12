@@ -4,6 +4,9 @@ module.exports = function(sequelize, DataTypes) {
   const model = sequelize.define(
     'game_accounts',
     {
+      type: {
+        type: DataTypes.STRING,
+      },
       details: {
         type: DataTypes.JSONB,
       },

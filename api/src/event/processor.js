@@ -1,10 +1,9 @@
 const sleep = require('sleep-promise');
+const utils = require('./utils');
 const db = require('../models');
 
 const Op = db.Sequelize.Op;
 const sequelize = db.sequelize;
-const gameHandlers = require('./handlers');
-const utils = require('./utils');
 
 async function scheduleNextTimer(job, t) {
   if (job.queue_id === null || job.next_id === null) {
@@ -21,20 +20,7 @@ async function scheduleNextTimer(job, t) {
     lock: t.LOCK.UPDATE,
   });
 
-  const values = {};
-  const handler = gameHandlers[next.handler];
-  await utils.prepareJobToRun(
-    queue,
-    next.details,
-    handler,
-    values,
-    t,
-    job.trigger_at
-  );
-
-  return next.update(values, {
-    transaction: t,
-  });
+  await utils.prepareJobToRun(queue, next, t, job.trigger_at);
 }
 
 function handleJobId(job_id) {
@@ -52,23 +38,19 @@ function handleJobId(job_id) {
           return;
         }
 
-        const handler = gameHandlers[job.handler];
-
         return Promise.resolve()
-          .then(() => handler.complete(job.details, t, job.trigger_at))
+          .then(() => utils.invokeHandler('complete', job, t))
           .then(async () => {
-            if (handler.reschedule) {
-              const duration = await handler.reschedule(job.details, t);
-              if (duration) {
-                return job.update(
-                  {
-                    trigger_at: utils.nextAt(duration, job.trigger_at),
-                  },
-                  {
-                    transaction: t,
-                  }
-                );
-              }
+            const duration = await utils.invokeHandler('reschedule', job, t);
+            if (duration) {
+              return job.update(
+                {
+                  trigger_at: utils.nextAt(duration, job.trigger_at),
+                },
+                {
+                  transaction: t,
+                }
+              );
             }
 
             return Promise.all([

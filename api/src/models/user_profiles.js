@@ -30,6 +30,7 @@ module.exports = function(sequelize, DataTypes) {
     return await sequelize.transaction(async t => {
       const account = await model.db.game_accounts.create(
         {
+          type: 'player',
           details: {
             nickname: this.discord_details.username,
           },

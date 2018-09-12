@@ -11,6 +11,9 @@ create index type_idx on schemaless (type);
 create table game_accounts (
   id bigserial primary key,
 
+  -- type can be one of player, corporation, maybe bot
+  type text not null,
+
   details jsonb,
 
   created_at timestamp with time zone,
@@ -43,6 +46,7 @@ create index timer_queue_blockage_idx on timer_queues (blocked_type, blocked_con
 
 create table timers (
   id bigserial primary key,
+  game_account_id bigint not null references game_accounts (id),
 
   handler text not null,
   trigger_at timestamp with time zone,
@@ -59,6 +63,10 @@ create index queue_id_next_id_idx on timers (queue_id, next_id) where queue_id i
 create unique index queue_id_list_head_idx on timers (queue_id) where list_head and queue_id is not null;
 
 create table assets (
-  id text primary key,
-  amount integer not null
+  game_account_id bigint not null references game_accounts (id),
+  type text not null,
+
+  amount integer not null,
+
+  primary key(game_account_id, type)
 );

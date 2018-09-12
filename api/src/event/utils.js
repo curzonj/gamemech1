@@ -5,6 +5,31 @@ const Op = db.Sequelize.Op;
 const sequelize = db.sequelize;
 
 const self = (module.exports = {
+  async invokeHandler(
+    name,
+    { handler, game_account_id, details, trigger_at },
+    t
+  ) {
+    const fns = gameHandlers[handler];
+
+    if (fns[name] === undefined) {
+      return;
+    }
+
+    const copy = Object.assign({}, details, { game_account_id });
+
+    switch (name) {
+      case 'prepare':
+        return await fns.prepare(copy, t);
+      case 'complete':
+        return await fns.complete(copy, t, trigger_at);
+      case 'reschedule':
+        return await fns.reschedule(copy, t);
+      default:
+        throw new Error('unsupported handler operation');
+    }
+  },
+
   async unblock(type, container, quantity, now = new Date()) {
     const blocked = await db.timer_queues.findAll({
       attributes: ['id'],
@@ -41,9 +66,7 @@ const self = (module.exports = {
           return;
         }
 
-        const handler = gameHandlers[next.handler];
-
-        const { duration } = await handler.prepare(next.details, t);
+        const { duration } = await self.invokeHandler('prepare', next, t);
         if (duration) {
           await next.update(
             {
@@ -69,12 +92,15 @@ const self = (module.exports = {
     }
   },
 
-  async prepareJobToRun(queue, details, handler, values, t, now = new Date()) {
-    values.list_head = true;
+  async prepareJobToRun(queue, job, t, now = new Date()) {
+    const values = {
+      list_head: true,
+    };
 
-    const { duration, reqs } = await handler.prepare(details, t);
+    const { duration, reqs } = await self.invokeHandler('prepare', job, t);
 
     if (duration) {
+      // We set the value because we don't know if it's an object
       values.trigger_at = self.nextAt(duration, now);
     } else {
       await queue.update(
@@ -88,17 +114,12 @@ const self = (module.exports = {
         }
       );
     }
+
+    await job.update(values, { transaction: t });
   },
 
-  schedule({ handler, queue_id, details }) {
+  schedule({ handler, game_account_id, queue_id, details }) {
     return sequelize.transaction(async t => {
-      const handlerFns = gameHandlers[handler];
-      const values = {
-        handler,
-        queue_id,
-        details,
-      };
-
       const queue = await db.timer_queues.findById(queue_id, {
         transaction: t,
         lock: t.LOCK.UPDATE,
@@ -117,13 +138,17 @@ const self = (module.exports = {
         }
       );
 
-      if (last === null) {
-        await self.prepareJobToRun(queue, details, handlerFns, values, t);
-      }
-
-      const job = await db.timers.create(values, {
-        transaction: t,
-      });
+      const job = await db.timers.create(
+        {
+          handler,
+          game_account_id,
+          queue_id,
+          details,
+        },
+        {
+          transaction: t,
+        }
+      );
 
       if (last) {
         await last.update(
@@ -134,6 +159,8 @@ const self = (module.exports = {
             transaction: t,
           }
         );
+      } else {
+        await self.prepareJobToRun(queue, job, t);
       }
 
       return job;

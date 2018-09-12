@@ -46,7 +46,7 @@ class App extends Component {
       }`)
     .then(data => {
       let name = safe(() => data.account.details.nickname, "Anonymous Stranger")
-      this.setState({ text: `Hello ${name}` })
+      this.setState({ text: `Hello ${name}!` })
     })
     .catch(err => {
       console.log(err)

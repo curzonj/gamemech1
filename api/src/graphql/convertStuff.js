@@ -15,39 +15,54 @@ exports.resolvers = {
   },
 };
 
-function convertStuff() {
-  return sequelize
-    .transaction(t =>
-      db.assets
-        .findById('iron', {
-          transaction: t,
-          lock: t.LOCK.UPDATE,
-        })
-        .then(a => {
-          if (a.amount < 10) {
-            throw new Error('Not enough inputs');
-          }
+async function convertStuff(root, args, req, info) {
+  if (!req.user) {
+    return;
+  }
 
-          return Promise.all([
-            a.update(
-              {
-                amount: a.amount - 10,
-              },
-              {
-                transaction: t,
-              }
-            ),
-            db.assets.upsertOnConflict(
-              {
-                id: 'tools',
-                amount: 1,
-              },
-              {
-                transaction: t,
-              }
-            ),
-          ]).then(([iron, [tools]]) => tools);
-        })
-    )
-    .then(tools => unblock('tools', null, tools.amount).then(() => tools));
+  const game_account_id = req.user.id;
+
+  const tools = await sequelize.transaction(async t => {
+    const a = await db.assets.findOne(
+      {
+        where: {
+          game_account_id,
+          type: 'iron',
+        },
+      },
+      {
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      }
+    );
+
+    if (a.amount < 10) {
+      throw new Error('Not enough inputs');
+    }
+
+    return Promise.all([
+      a.update(
+        {
+          amount: a.amount - 10,
+        },
+        {
+          transaction: t,
+        }
+      ),
+      db.assets.upsertOnConflict(
+        {
+          game_account_id,
+          type: 'tools',
+          amount: 1,
+        },
+        {
+          transaction: t,
+        }
+      ),
+    ]).then(([iron, [tools]]) => tools);
+  });
+
+  await unblock('tools', null, tools.amount);
+
+  return tools;
 }
