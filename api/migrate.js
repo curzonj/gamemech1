@@ -6,10 +6,12 @@ const nconf = require('nconf')
 
 nconf
     .env()
-    .file({ file: ".env.json" })
+    .file({
+        file: ".env.json"
+    })
 
 var database_url = nconf.get("DATABASE_URL")
-if (database_url === undefined)  {
+if (database_url === undefined) {
     console.log("export DATABASE_URL or set in .env.json");
     process.exit(1);
 }
@@ -19,7 +21,7 @@ const postgrator = new Postgrator({
     migrationDirectory: __dirname + '/migrations',
     driver: 'pg',
     connectionString: database_url
-}); 
+});
 
 postgrator.migrate(process.argv[2])
     .then(appliedMigrations => console.log(appliedMigrations))

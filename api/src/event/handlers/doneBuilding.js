@@ -17,7 +17,7 @@ module.exports = {
                     handler: 'factoryProduceIron',
                     trigger_at: trigger,
                     interval_seconds: 120,
-                    details: { }
+                    details: {}
                 }, {
                     transaction: t,
                 })
@@ -31,14 +31,24 @@ module.exports = {
             })
 
             if (a === null || a.amount < 10) {
-                return { reqs: { type: 'tools', container: null, quantity: 10 } }
+                return {
+                    reqs: {
+                        type: 'tools',
+                        container: null,
+                        quantity: 10
+                    }
+                }
             }
 
-            await a.update({amount: a.amount - 10 }, {
+            await a.update({
+                amount: a.amount - 10
+            }, {
                 transaction: t,
             })
 
-            return { duration: 120 }
+            return {
+                duration: 120
+            }
         }
     }
 }

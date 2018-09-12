@@ -2,7 +2,9 @@ const nconf = require('nconf')
 
 nconf
     .env()
-    .file({ file: ".env.json" })
+    .file({
+        file: ".env.json"
+    })
 
 requireValue('DISCORD_OAUTH_CLIENT_ID')
 requireValue('DISCORD_OAUTH_CLIENT_SECRET')

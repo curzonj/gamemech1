@@ -25,12 +25,18 @@ module.exports = function(sequelize, DataTypes) {
         } else {
             return await sequelize.transaction(async (t) => {
                 let account = await model.db.game_accounts.create({
-                    details: { nickname: this.discord_details.username }
-                }, { transaction: t })
+                    details: {
+                        nickname: this.discord_details.username
+                    }
+                }, {
+                    transaction: t
+                })
 
                 await this.update({
                     game_account_id: account.id
-                }, { transaction: t })
+                }, {
+                    transaction: t
+                })
 
                 return account
             })

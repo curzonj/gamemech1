@@ -1,4 +1,4 @@
-const safe = require('../utils/try_catch')
+import safe from '../shared/try_catch'
 
 module.exports = function(sequelize, DataTypes) {
     const model = sequelize.define("game_accounts", {

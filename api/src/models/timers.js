@@ -44,7 +44,9 @@ module.exports = function(sequelize, DataTypes) {
     model.resolvers = {
         Query: {
             now: () => (new Date()),
-            timer: ({id}) => model.findById(id),
+            timer: ({
+                id
+            }) => model.findById(id),
             timers: () => model.findAll()
         },
     }

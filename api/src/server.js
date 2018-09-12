@@ -1,9 +1,11 @@
 const config = require('./config')
 const express = require('express')
 const http = require('http')
-const morgan       = require('morgan');
+const morgan = require('morgan');
 const graphqlHTTP = require('express-graphql');
-const { buildSchema } = require('graphql');
+const {
+    buildSchema
+} = require('graphql');
 const cors = require('cors')
 const schema = require('./graphql').schema
 const startSimulation = require('./event/processor')
@@ -16,26 +18,26 @@ app.use(cors())
 
 require('./http/authentication')(app)
 
-app.get('/', (req, res) => res.send(req.user ? 'Authenticated': 'Unauthenticated'))
+app.get('/', (req, res) => res.send(req.user ? 'Authenticated' : 'Unauthenticated'))
 app.get('/health', (req, res) => res.send('OK'))
 
 app.use('/graphql', graphqlHTTP({
-  schema: schema,
-  graphiql: true,
-  formatError: error => {
-    console.log(error, error.stack)
+    schema: schema,
+    graphiql: true,
+    formatError: error => {
+        console.log(error, error.stack)
 
-    return {
-      message: error.message,
-      locations: error.locations,
-      stack: error.stack ? error.stack.split('\n') : [],
-      path: error.path
-    }
-  },
+        return {
+            message: error.message,
+            locations: error.locations,
+            stack: error.stack ? error.stack.split('\n') : [],
+            path: error.path
+        }
+    },
 }))
 
-server.on('error', function (e) {
-  console.log(e)
+server.on('error', function(e) {
+    console.log(e)
 });
 
 startSimulation()

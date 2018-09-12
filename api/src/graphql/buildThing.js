@@ -1,5 +1,7 @@
 const db = require('../models')
-const { schedule } = require('../event/utils')
+const {
+    schedule
+} = require('../event/utils')
 
 exports.typeDefs = `
     extend type Mutation {
@@ -8,16 +10,18 @@ exports.typeDefs = `
 `
 
 exports.resolvers = {
-    Mutation: { buildThing }
+    Mutation: {
+        buildThing
+    }
 }
 
 function buildThing() {
     return db.timer_queues.findOrCreateAny()
-    .then(queue => {
-        return schedule({
-            handler: 'doneBuilding',
-            queue_id: queue.id,
-            details: {}
+        .then(queue => {
+            return schedule({
+                handler: 'doneBuilding',
+                queue_id: queue.id,
+                details: {}
+            })
         })
-    })
 }

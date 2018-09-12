@@ -32,41 +32,43 @@ async function scheduleNextTimer(job, t) {
 function handleJobId(job_id) {
     // TODO this needs timeouts or one bad handler could block the entire
     // worker
-    return sequelize.transaction(function (t) {
+    return sequelize.transaction(function(t) {
         return db.timers.findById(job_id, {
-            skipLocked: true,
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-        })
-        .then(job => {
-            if (job === null) {
-                return
-            }
-
-            const handler = gameHandlers[job.handler]
-
-            return Promise.resolve()
-            .then(() => {
-                return handler.complete(job.details, t, job.trigger_at)
+                skipLocked: true,
+                transaction: t,
+                lock: t.LOCK.UPDATE,
             })
-            .then(async () => {
-                if (handler.reschedule) {
-                    let duration = await handler.reschedule(job.details, t)
-                    if (duration) {
-                        return job.update({
-                            trigger_at: utils.nextAt(duration, job.trigger_at)
-                        }, {
-                            transaction: t
-                        })
-                    }
+            .then(job => {
+                if (job === null) {
+                    return
                 }
 
-                return Promise.all([
-                    scheduleNextTimer(job, t),
-                    job.destroy({ transaction: t })
-                ])
+                const handler = gameHandlers[job.handler]
+
+                return Promise.resolve()
+                    .then(() => {
+                        return handler.complete(job.details, t, job.trigger_at)
+                    })
+                    .then(async () => {
+                        if (handler.reschedule) {
+                            let duration = await handler.reschedule(job.details, t)
+                            if (duration) {
+                                return job.update({
+                                    trigger_at: utils.nextAt(duration, job.trigger_at)
+                                }, {
+                                    transaction: t
+                                })
+                            }
+                        }
+
+                        return Promise.all([
+                            scheduleNextTimer(job, t),
+                            job.destroy({
+                                transaction: t
+                            })
+                        ])
+                    })
             })
-        })
     })
 }
 
@@ -84,34 +86,36 @@ function runSimulation() {
     deadline.setSeconds(deadline.getSeconds() + workerIntervalSeconds)
 
     db.timers.findAll({
-        attributes: ['id', 'trigger_at'],
-        where: {
-            trigger_at: {
-                [Op.lte]: deadline
+            attributes: ['id', 'trigger_at'],
+            where: {
+                trigger_at: {
+                    [Op.lte]: deadline
+                },
             },
-        },
-        order: [ ['trigger_at', 'ASC'] ],
-        limit: dbQueryResultsLimit,
-    })
-    .then(rows => {
-        return Promise.all(rows.map(job => {
-            return runAt(job.trigger_at, () => {
-                return handleJobId(job.id)
-            })
-        }))
-        .then(() => {
-            // If we max out the result set, don't sleep
-            // before the next run
-            if (rows.length > 0) {
-                return runSimulation()
-            } else {
-                return runAt(deadline, runSimulation)
-            }
+            order: [
+                ['trigger_at', 'ASC']
+            ],
+            limit: dbQueryResultsLimit,
         })
-    })
-    .catch(err => {
-        console.log(err)
-    })
+        .then(rows => {
+            return Promise.all(rows.map(job => {
+                    return runAt(job.trigger_at, () => {
+                        return handleJobId(job.id)
+                    })
+                }))
+                .then(() => {
+                    // If we max out the result set, don't sleep
+                    // before the next run
+                    if (rows.length > 0) {
+                        return runSimulation()
+                    } else {
+                        return runAt(deadline, runSimulation)
+                    }
+                })
+        })
+        .catch(err => {
+            console.log(err)
+        })
 }
 
 module.exports = runSimulation

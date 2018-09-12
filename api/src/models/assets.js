@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
         },
     }
 
-    model.upsertOnConflict = function(values, opts={}) {
+    model.upsertOnConflict = function(values, opts = {}) {
         opts.replacements = values
         opts.model = model
 

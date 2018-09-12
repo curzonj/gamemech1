@@ -1,12 +1,14 @@
 {
-  "name": "002-graphql",
+  "name": "generic",
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "migrate": "node migrate.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/server.js --exec babel-node",
+    "build": "babel src -d dist",
+    "serve": "node dist/server.js",
+    "test": "mocha --compilers js:babel-register",
+    "migrate": "node migrate.js"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +34,11 @@
     "sleep-promise": "^8.0.1"
   },
   "devDependencies": {
-    "postgrator": "^3.6.0",
-    "nodemon": "^1.18.4"
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.1",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "nodemon": "^1.18.4",
+    "postgrator": "^3.6.0"
   }
 }

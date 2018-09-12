@@ -7,13 +7,15 @@ exports.typeDefs = `
 `
 
 exports.resolvers = {
-    Mutation: { getStuff }
+    Mutation: {
+        getStuff
+    }
 }
 
 function getStuff() {
     return db.assets.upsertOnConflict({
-        id: "iron",
-        amount: 1
-    })
-    .then(list => list[0])
+            id: "iron",
+            amount: 1
+        })
+        .then(list => list[0])
 }

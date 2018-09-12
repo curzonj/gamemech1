@@ -4,9 +4,9 @@ const Op = db.Sequelize.Op
 const sequelize = db.sequelize
 
 const self = module.exports = {
-    async unblock(type, container, quantity, now=new Date()) {
+    async unblock(type, container, quantity, now = new Date()) {
         let blocked = await db.timer_queues.findAll({
-            attributes: [ 'id' ],
+            attributes: ['id'],
             where: {
                 blocked_type: type,
                 blocked_container: container,
@@ -16,8 +16,10 @@ const self = module.exports = {
             }
         })
 
-        for (const { id } of blocked) {
-            await sequelize.transaction(async function (t) {
+        for (const {
+                id
+            } of blocked) {
+            await sequelize.transaction(async function(t) {
                 let queue = await db.timer_queues.findById(id, {
                     transaction: t,
                     lock: t.LOCK.UPDATE,
@@ -39,7 +41,9 @@ const self = module.exports = {
 
                 const handler = gameHandlers[next.handler]
 
-                let { duration } = await handler.prepare(next.details, t)
+                let {
+                    duration
+                } = await handler.prepare(next.details, t)
                 if (duration) {
                     await next.update({
                         trigger_at: self.nextAt(duration, now)
@@ -59,10 +63,13 @@ const self = module.exports = {
         }
     },
 
-    async prepareJobToRun(queue, details, handler, values, t, now=new Date()) {
+    async prepareJobToRun(queue, details, handler, values, t, now = new Date()) {
         values.list_head = true
 
-        let { duration, reqs } = await handler.prepare(details, t)
+        let {
+            duration,
+            reqs
+        } = await handler.prepare(details, t)
 
         if (duration) {
             values.trigger_at = self.nextAt(duration, now)
@@ -78,10 +85,18 @@ const self = module.exports = {
     },
 
 
-    schedule({ handler, queue_id, details }) {
-        return sequelize.transaction(async function (t) {
+    schedule({
+        handler,
+        queue_id,
+        details
+    }) {
+        return sequelize.transaction(async function(t) {
             const handlerFns = gameHandlers[handler]
-            let values = { handler, queue_id, details }
+            let values = {
+                handler,
+                queue_id,
+                details
+            }
 
             let queue = await db.timer_queues.findById(queue_id, {
                 transaction: t,
@@ -118,7 +133,7 @@ const self = module.exports = {
         })
     },
 
-    nextAt(duration, from=new Date()) {
+    nextAt(duration, from = new Date()) {
         let next = new Date(from)
         next.setSeconds(next.getSeconds() + duration)
 
