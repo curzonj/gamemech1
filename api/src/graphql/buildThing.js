@@ -1,27 +1,24 @@
-const db = require('../models')
-const {
-    schedule
-} = require('../event/utils')
+const db = require('../models');
+const { schedule } = require('../event/utils');
 
 exports.typeDefs = `
     extend type Mutation {
         buildThing: Timer
     }
-`
+`;
 
 exports.resolvers = {
-    Mutation: {
-        buildThing
-    }
-}
+  Mutation: {
+    buildThing,
+  },
+};
 
 function buildThing() {
-    return db.timer_queues.findOrCreateAny()
-        .then(queue => {
-            return schedule({
-                handler: 'doneBuilding',
-                queue_id: queue.id,
-                details: {}
-            })
-        })
+  return db.timer_queues.findOrCreateAny().then(queue =>
+    schedule({
+      handler: 'doneBuilding',
+      queue_id: queue.id,
+      details: {},
+    })
+  );
 }

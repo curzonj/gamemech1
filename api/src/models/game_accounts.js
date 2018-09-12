@@ -1,17 +1,21 @@
-import safe from '../shared/try_catch'
+import safe from '../shared/try_catch';
 
 module.exports = function(sequelize, DataTypes) {
-    const model = sequelize.define("game_accounts", {
-        details: {
-            type: DataTypes.JSONB,
-        }
-    }, {
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-    })
+  const model = sequelize.define(
+    'game_accounts',
+    {
+      details: {
+        type: DataTypes.JSONB,
+      },
+    },
+    {
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    }
+  );
 
-    model.typeDefs = `
+  model.typeDefs = `
         extend type Query {
             account(id: ID): GameAccount
             accounts: [GameAccount]
@@ -25,17 +29,17 @@ module.exports = function(sequelize, DataTypes) {
         type GameAccountDetails {
             nickname: String
         }
-    `
+    `;
 
-    model.resolvers = {
-        Query: {
-            account: (root, args, req, info) => {
-                let id = safe(() => args.id)
-                return (id ? model.findById(id) : req.user)
-            },
-            accounts: () => model.findAll(),
-        },
-    }
+  model.resolvers = {
+    Query: {
+      account: (root, args, req, info) => {
+        const id = safe(() => args.id);
+        return id ? model.findById(id) : req.user;
+      },
+      accounts: () => model.findAll(),
+    },
+  };
 
-    return model
-}
+  return model;
+};
