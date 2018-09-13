@@ -1,3 +1,5 @@
+import { gqlAuthd } from '../utils';
+
 module.exports = function(sequelize, DataTypes) {
   const model = sequelize.define(
     'timers',
@@ -52,7 +54,11 @@ module.exports = function(sequelize, DataTypes) {
     Query: {
       now: () => new Date(),
       timer: ({ id }) => model.findById(id),
-      timers: () => model.findAll(),
+      timers: gqlAuthd(req =>
+        model.findAll({
+          where: { game_account_id: req.user.id },
+        })
+      ),
     },
   };
 

@@ -1,3 +1,5 @@
+import authRouter from './http/authentication';
+
 const express = require('express');
 const http = require('http');
 const morgan = require('morgan');
@@ -14,7 +16,7 @@ const server = http.createServer(app);
 app.use(morgan('dev')); // log every request to the console
 app.use(cors());
 
-require('./http/authentication')(app);
+authRouter(app);
 
 app.get('/', (req, res) =>
   res.send(req.user ? 'Authenticated' : 'Unauthenticated')

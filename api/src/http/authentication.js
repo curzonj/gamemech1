@@ -1,12 +1,14 @@
+import passportConfig from './passport';
+
 const passport = require('passport');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
-require('./passport')(passport);
+passportConfig(passport);
 
-module.exports = function(app) {
+export default function(app) {
   app.use(
     session({
       store: new FileStore({
@@ -75,4 +77,4 @@ module.exports = function(app) {
     req.logout();
     res.redirect('/');
   });
-};
+}

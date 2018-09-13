@@ -37,7 +37,7 @@ function translateDiscordProfileToAccount(
     .catch(err => done(err));
 }
 
-module.exports = function(passport) {
+export default function(passport) {
   passport.serializeUser((account, done) => {
     done(null, account.id);
   });
@@ -89,4 +89,4 @@ module.exports = function(passport) {
         .catch(err => done(err));
     })
   );
-};
+}

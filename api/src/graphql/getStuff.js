@@ -1,4 +1,16 @@
+import { gqlAuthd } from '../utils';
+
 const db = require('../models');
+
+const getStuff = gqlAuthd(req =>
+  db.assets
+    .upsertOnConflict({
+      game_account_id: req.user.id,
+      type: 'iron',
+      amount: 1,
+    })
+    .then(list => list[0])
+);
 
 exports.typeDefs = `
   extend type Mutation {
@@ -11,17 +23,3 @@ exports.resolvers = {
     getStuff,
   },
 };
-
-function getStuff(root, args, req, info) {
-  if (!req.user) {
-    return;
-  }
-
-  return db.assets
-    .upsertOnConflict({
-      game_account_id: req.user.id,
-      type: 'iron',
-      amount: 1,
-    })
-    .then(list => list[0]);
-}

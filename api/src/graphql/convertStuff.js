@@ -1,25 +1,11 @@
+import { gqlAuthd } from '../utils';
+
 const db = require('../models');
 
 const sequelize = db.sequelize;
 const { unblock } = require('../event/utils');
 
-exports.typeDefs = `
-  extend type Mutation {
-    convertStuff: Asset
-  }
-`;
-
-exports.resolvers = {
-  Mutation: {
-    convertStuff,
-  },
-};
-
-async function convertStuff(root, args, req, info) {
-  if (!req.user) {
-    return;
-  }
-
+const convertStuff = gqlAuthd(async req => {
   const game_account_id = req.user.id;
 
   const tools = await sequelize.transaction(async t => {
@@ -65,4 +51,16 @@ async function convertStuff(root, args, req, info) {
   await unblock('tools', null, tools.amount);
 
   return tools;
-}
+});
+
+exports.typeDefs = `
+  extend type Mutation {
+    convertStuff: Asset
+  }
+`;
+
+exports.resolvers = {
+  Mutation: {
+    convertStuff,
+  },
+};

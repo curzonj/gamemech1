@@ -1,3 +1,5 @@
+import { gqlAuthd } from '../utils';
+
 module.exports = function(sequelize, DataTypes) {
   const model = sequelize.define(
     'assets',
@@ -23,7 +25,6 @@ module.exports = function(sequelize, DataTypes) {
 
   model.typeDefs = `
         type Asset {
-            game_account_id: Int
             type: String
             amount: Int
         }
@@ -34,7 +35,11 @@ module.exports = function(sequelize, DataTypes) {
     `;
   model.resolvers = {
     Query: {
-      assets: () => model.findAll(),
+      assets: gqlAuthd(req =>
+        model.findAll({
+          where: { game_account_id: req.user.id },
+        })
+      ),
     },
   };
 
