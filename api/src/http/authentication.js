@@ -41,6 +41,7 @@ export default function(app) {
         {
           session: false,
         },
+        // eslint-disable-next-line no-shadow
         err => {
           if (err) {
             console.log(err);

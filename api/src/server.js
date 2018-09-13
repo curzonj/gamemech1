@@ -4,11 +4,10 @@ const express = require('express');
 const http = require('http');
 const morgan = require('morgan');
 const graphqlHTTP = require('express-graphql');
-const { buildSchema } = require('graphql');
 const cors = require('cors');
 const config = require('./config');
-const schema = require('./graphql').schema;
-const startSimulation = require('./event/processor');
+const { schema } = require('./graphql');
+const startSimulation = require('./events/processor');
 
 const app = express();
 const server = http.createServer(app);
@@ -28,16 +27,10 @@ app.use(
   graphqlHTTP({
     schema,
     graphiql: true,
-    formatError: error => {
-      console.log(error, error.stack);
-
-      return {
-        message: error.message,
-        locations: error.locations,
-        stack: error.stack ? error.stack.split('\n') : [],
-        path: error.path,
-      };
-    },
+    formatError: error => ({
+      message: error.message,
+      path: error.path,
+    }),
   })
 );
 

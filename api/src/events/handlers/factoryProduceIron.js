@@ -2,12 +2,14 @@ const db = require('../../models');
 
 module.exports = {
   factoryProduceIron: {
-    complete({ game_account_id }, t) {
-      return db.assets.upsertOnConflict(
+    async complete({ gameAccountId }, t) {
+      const ironId = await db.type.findIdByName('iron');
+
+      return db.asset.upsertOnConflict(
         {
-          game_account_id,
-          type: 'iron',
-          amount: 1,
+          gameAccountId,
+          typeId: ironId,
+          quantity: 1,
         },
         {
           transaction: t,

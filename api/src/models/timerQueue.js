@@ -1,23 +1,24 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
-    'timer_queues',
+    'timerQueue',
     {
-      blocked_type: {
-        type: DataTypes.STRING,
-      },
-      blocked_container: {
+      blockedTypeId: {
         type: DataTypes.INTEGER,
       },
-      blocked_quantity: {
+      blockedContainer: {
+        type: DataTypes.INTEGER,
+      },
+      blockedQuantity: {
         type: DataTypes.INTEGER,
       },
     },
     {
+      tableName: 'timer_queues',
       timestamps: false,
     }
   );
 
-  model.findOrCreateAny = async function() {
+  model.findOrCreateAny = async () => {
     let first = await model.findOne({});
     if (!first) {
       first = await model.create({});

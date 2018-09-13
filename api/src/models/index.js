@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
+const decamelize = require('decamelize');
 
 const basename = path.basename(__filename);
 const config = require('../config');
@@ -10,6 +11,16 @@ const db = {
 };
 
 const sequelize = new Sequelize(config.get('DATABASE_URL'), {});
+
+// convert camelCase fields to underscored because postgresql is case-ignorant
+sequelize.addHook('beforeDefine', attributes => {
+  Object.keys(attributes).forEach(key => {
+    if (typeof attributes[key] !== 'function') {
+      // eslint-disable-next-line no-param-reassign
+      attributes[key].field = decamelize(key);
+    }
+  });
+});
 
 fs.readdirSync(__dirname)
   .filter(

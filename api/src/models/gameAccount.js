@@ -1,8 +1,8 @@
 import safe from '../shared/try_catch';
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
-    'game_accounts',
+    'gameAccount',
     {
       type: {
         type: DataTypes.STRING,
@@ -12,6 +12,7 @@ module.exports = function(sequelize, DataTypes) {
       },
     },
     {
+      tableName: 'game_accounts',
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',

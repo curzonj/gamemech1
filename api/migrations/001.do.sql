@@ -37,12 +37,12 @@ create index discord_id_idx on user_profiles (discord_id);
 create table timer_queues (
   id bigserial primary key,
 
-  blocked_type text,
+  blocked_type_id bigint,
   blocked_container bigint,
   blocked_quantity bigint
 );
 
-create index timer_queue_blockage_idx on timer_queues (blocked_type, blocked_container, blocked_quantity);
+create index timer_queue_blockage_idx on timer_queues (blocked_type_id, blocked_container, blocked_quantity);
 
 create table timers (
   id bigserial primary key,
@@ -62,11 +62,19 @@ create index trigger_at_idx on timers (trigger_at) where trigger_at is not null;
 create index queue_id_next_id_idx on timers (queue_id, next_id) where queue_id is not null;
 create unique index queue_id_list_head_idx on timers (queue_id) where list_head and queue_id is not null;
 
+create table types (
+  id bigserial primary key,
+
+  name text not null
+);
+
+create unique index type_name_idx on types (name);
+
 create table assets (
   game_account_id bigint not null references game_accounts (id),
-  type text not null,
+  type_id bigint not null references types (id),
 
-  amount integer not null,
+  quantity integer not null,
 
-  primary key(game_account_id, type)
+  primary key(game_account_id, type_id)
 );

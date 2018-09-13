@@ -2,15 +2,17 @@ import { gqlAuthd } from '../utils';
 
 const db = require('../models');
 
-const getStuff = gqlAuthd(req =>
-  db.assets
-    .upsertOnConflict({
-      game_account_id: req.user.id,
-      type: 'iron',
-      amount: 1,
-    })
-    .then(list => list[0])
-);
+const getStuff = gqlAuthd(async req => {
+  const ironId = await db.type.findIdByName('iron');
+
+  const asset = await db.asset.upsertOnConflict({
+    gameAccountId: req.user.id,
+    typeId: ironId,
+    quantity: 1,
+  });
+
+  return asset;
+});
 
 exports.typeDefs = `
   extend type Mutation {

@@ -27,6 +27,7 @@ fs.readdirSync(__dirname)
   )
   .forEach(file => {
     try {
+      // eslint-disable-next-line global-require, import/no-dynamic-require
       const result = require(`./${file}`);
 
       typeDefs.push(result.typeDefs);

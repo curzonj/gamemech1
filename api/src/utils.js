@@ -1,7 +1,9 @@
+/* eslint import/prefer-default-export: 0 */
+
 export function gqlAuthd(fn) {
   return (root, args, req, info) => {
     if (!req.user) {
-      return;
+      throw new Error('Requires authentication');
     }
 
     // 99% of the time req is all we want

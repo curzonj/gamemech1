@@ -1,28 +1,28 @@
 import { gqlAuthd } from '../utils';
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
-    'timers',
+    'timer',
     {
-      game_account_id: {
+      gameAccountId: {
         type: DataTypes.INTEGER,
       },
       handler: {
         type: DataTypes.STRING,
       },
-      trigger_at: {
+      triggerAt: {
         type: DataTypes.DATE,
       },
       details: {
         type: DataTypes.JSONB,
       },
-      list_head: {
+      listHead: {
         type: DataTypes.BOOLEAN,
       },
-      next_id: {
+      nextId: {
         type: DataTypes.INTEGER,
       },
-      queue_id: {
+      queueId: {
         type: DataTypes.INTEGER,
       },
     },
@@ -41,7 +41,7 @@ module.exports = function(sequelize, DataTypes) {
         type Timer {
             id: ID!
             handler: String!
-            trigger_at: DateTime
+            triggerAt: DateTime
             details: TimerDetails
         }
 
@@ -56,7 +56,7 @@ module.exports = function(sequelize, DataTypes) {
       timer: ({ id }) => model.findById(id),
       timers: gqlAuthd(req =>
         model.findAll({
-          where: { game_account_id: req.user.id },
+          where: { gameAccountId: req.user.id },
         })
       ),
     },

@@ -1,7 +1,7 @@
-import { expect } from 'chai'
+import { expect } from 'chai';
 
-describe('test', function () {
-  it('should pass', function () {
-    expect('string').to.be.a('string')
-  })
-})
+describe('test', () => {
+  it('should pass', () => {
+    expect('string').to.be.a('string');
+  });
+});

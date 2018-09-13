@@ -10,6 +10,7 @@ fs.readdirSync(__dirname)
   )
   .forEach(file => {
     try {
+      // eslint-disable-next-line global-require, import/no-dynamic-require
       const handlers = require(`./${file}`);
 
       Object.assign(module.exports, handlers);

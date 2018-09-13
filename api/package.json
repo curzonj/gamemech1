@@ -8,14 +8,16 @@
     "build": "babel src -d dist",
     "serve": "node dist/server.js",
     "test": "mocha --require @babel/register \"test/**/*.js\"",
-    "lint": "eslint --fix src; true",
-    "migrate": "node migrate.js"
+    "lint": "eslint --fix src test; true",
+    "migrate": "node migrate.js",
+    "seed": "babel-node src/seeder.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.4",
+    "decamelize": "^2.0.0",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "express-session": "^1.15.6",

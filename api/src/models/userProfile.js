@@ -1,38 +1,39 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
-    'user_profiles',
+    'userProfile',
     {
-      game_account_id: {
+      gameAccountId: {
         type: DataTypes.INTEGER,
       },
-      discord_id: {
+      discordId: {
         type: DataTypes.STRING,
       },
-      discord_details: {
+      discordDetails: {
         type: DataTypes.JSONB,
       },
     },
     {
+      tableName: 'user_profiles',
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',
     }
   );
 
-  model.associate = function(db) {
+  model.associate = function associate(db) {
     this.db = db;
   };
 
-  model.prototype.getGameAccount = async function() {
-    if (this.game_account_id) {
-      return await model.db.game_accounts.findById(this.game_account_id);
+  model.prototype.getGameAccount = async function getGameAccount() {
+    if (this.gameAccountId) {
+      return model.db.gameAccount.findById(this.gameAccountId);
     }
-    return await sequelize.transaction(async t => {
-      const account = await model.db.game_accounts.create(
+    return sequelize.transaction(async t => {
+      const account = await model.db.gameAccount.create(
         {
           type: 'player',
           details: {
-            nickname: this.discord_details.username,
+            nickname: this.discordDetails.username,
           },
         },
         {
@@ -42,7 +43,7 @@ module.exports = function(sequelize, DataTypes) {
 
       await this.update(
         {
-          game_account_id: account.id,
+          gameAccountId: account.id,
         },
         {
           transaction: t,

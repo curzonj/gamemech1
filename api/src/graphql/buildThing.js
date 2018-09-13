@@ -1,15 +1,15 @@
 import { gqlAuthd } from '../utils';
+import { schedule } from '../events/utils';
 
 const db = require('../models');
-const { schedule } = require('../event/utils');
 
 const buildThing = gqlAuthd(async req => {
-  const queue = await db.timer_queues.findOrCreateAny();
+  const queue = await db.timerQueue.findOrCreateAny();
 
   return schedule({
-    game_account_id: req.user.id,
+    gameAccountId: req.user.id,
     handler: 'doneBuilding',
-    queue_id: queue.id,
+    queueId: queue.id,
     details: {},
   });
 });

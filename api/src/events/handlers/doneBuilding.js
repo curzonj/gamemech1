@@ -2,25 +2,27 @@ const db = require('../../models');
 
 module.exports = {
   doneBuilding: {
-    complete({ game_account_id }, t, now) {
-      const trigger_at = new Date(now);
-      trigger_at.setSeconds(trigger_at.getSeconds() + 120);
+    async complete({ gameAccountId }, t, now) {
+      const triggerAt = new Date(now);
+      triggerAt.setSeconds(triggerAt.getSeconds() + 120);
+
+      const factoryId = await db.type.findIdByName('factory');
 
       return Promise.all([
-        db.assets.upsertOnConflict(
+        db.asset.upsertOnConflict(
           {
-            game_account_id,
-            type: 'factory',
-            amount: 1,
+            gameAccountId,
+            typeId: factoryId,
+            quantity: 1,
           },
           {
             transaction: t,
           }
         ),
-        db.timers.create(
+        db.timer.create(
           {
-            game_account_id,
-            trigger_at,
+            gameAccountId,
+            triggerAt,
             handler: 'factoryProduceIron',
             interval_seconds: 120,
             details: {},
@@ -32,12 +34,14 @@ module.exports = {
       ]);
     },
 
-    async prepare({ game_account_id }, t) {
-      const a = await db.assets.findOne(
+    async prepare({ gameAccountId }, t) {
+      const toolsId = await db.type.findIdByName('tools');
+
+      const a = await db.asset.findOne(
         {
           where: {
-            game_account_id,
-            type: 'tools',
+            gameAccountId,
+            typeId: toolsId,
           },
         },
         {
@@ -46,10 +50,10 @@ module.exports = {
         }
       );
 
-      if (a === null || a.amount < 10) {
+      if (a === null || a.quantity < 10) {
         return {
           reqs: {
-            type: 'tools',
+            typeId: toolsId,
             container: null,
             quantity: 10,
           },
@@ -58,7 +62,7 @@ module.exports = {
 
       await a.update(
         {
-          amount: a.amount - 10,
+          quantity: a.quantity - 10,
         },
         {
           transaction: t,
