@@ -11,6 +11,8 @@ const getStuff = gqlAuthd(async req => {
     quantity: 1,
   });
 
+  // TODO this needs to call unblock on the queues
+
   return asset;
 });
 

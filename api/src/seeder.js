@@ -1,12 +1,13 @@
+import game from './game';
+
 const db = require('./models');
-const gameData = require('../game/v0.json');
 
 const { Sequelize, sequelize } = db;
 
 Promise.all(
-  Object.keys(gameData).map(async typeName => {
+  Object.keys(game.seeds).map(async typeName => {
     await Promise.all(
-      gameData[typeName].map(async row => {
+      game.seeds[typeName].map(async row => {
         await db[typeName]
           .create(row)
           .catch(Sequelize.ValidationError, err => {

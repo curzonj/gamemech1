@@ -7,6 +7,6 @@ export function gqlAuthd(fn) {
     }
 
     // 99% of the time req is all we want
-    return fn(req, root, args, info);
+    return fn(req, args, root, info);
   };
 }

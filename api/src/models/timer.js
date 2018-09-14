@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) => {
       queueId: {
         type: DataTypes.INTEGER,
       },
+      retries: {
+        type: DataTypes.INTEGER,
+      },
     },
     {
       timestamps: false,
@@ -32,22 +35,23 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   model.typeDefs = `
-        extend type Query {
-            timer(id: ID!): Timer
-            timers: [Timer]
-            now: DateTime
-        }
+      extend type Query {
+        timer(id: ID!): Timer
+        timers: [Timer]
+        now: DateTime
+      }
 
-        type Timer {
-            id: ID!
-            handler: String!
-            triggerAt: DateTime
-            details: TimerDetails
-        }
+      type Timer {
+        id: ID!
+        handler: String!
+        triggerAt: DateTime
+        retries: Int
+        details: TimerDetails
+      }
 
-        type TimerDetails {
-            name: String
-        }
+      type TimerDetails {
+        name: String
+      }
     `;
 
   model.resolvers = {

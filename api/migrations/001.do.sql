@@ -50,6 +50,7 @@ create table timers (
 
   handler text not null,
   trigger_at timestamp with time zone,
+  retries int not null default 0,
 
   queue_id bigint references timer_queues (id),
   next_id bigint references timers (id),
@@ -58,7 +59,7 @@ create table timers (
   details jsonb
 );
 
-create index trigger_at_idx on timers (trigger_at) where trigger_at is not null;
+create index trigger_at_idx on timers (trigger_at, retries) where trigger_at is not null;
 create index queue_id_next_id_idx on timers (queue_id, next_id) where queue_id is not null;
 create unique index queue_id_list_head_idx on timers (queue_id) where list_head and queue_id is not null;
 

@@ -10,7 +10,12 @@ const db = {
   models: [],
 };
 
-const sequelize = new Sequelize(config.get('DATABASE_URL'), {});
+const sequelize = new Sequelize(config.get('DATABASE_URL'), {
+  // NOTE issues with the pool cause the "Cannot read property 'query' of undefined" error
+  pool: {
+    max: parseInt(config.get('DB_POOL_MAX'), 10),
+  },
+});
 
 // convert camelCase fields to underscored because postgresql is case-ignorant
 sequelize.addHook('beforeDefine', attributes => {

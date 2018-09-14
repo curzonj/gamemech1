@@ -15,9 +15,9 @@ const buildThing = gqlAuthd(async req => {
 });
 
 exports.typeDefs = `
-    extend type Mutation {
-        buildThing: Timer
-    }
+  extend type Mutation {
+      buildThing: Timer
+  }
 `;
 
 exports.resolvers = {

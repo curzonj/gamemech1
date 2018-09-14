@@ -14,15 +14,15 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   model.typeDefs = `
-        type Type {
-            id: ID!
-            name: String
-        }
+      type Type {
+        id: ID!
+        name: String
+      }
 
-        extend type Query {
-            type(id: ID!): Type
-            types: [Type]
-        }
+      extend type Query {
+        type(id: ID!): Type
+        types: [Type]
+      }
     `;
 
   model.resolvers = {
@@ -37,7 +37,11 @@ module.exports = (sequelize, DataTypes) => {
       where: { name },
     });
 
-    return safe(() => record.id);
+    if (record === null) {
+      throw new Error(`Unknown type ${name}`);
+    }
+
+    return record.id;
   };
 
   return model;

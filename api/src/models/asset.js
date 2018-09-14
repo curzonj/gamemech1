@@ -28,14 +28,19 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   model.typeDefs = `
-        type Asset {
-            type: Type
-            quantity: Int
-        }
+      input AssetQuantityInput {
+        id: ID!
+        quantity: Int!
+      }
 
-        extend type Query {
-            assets: [Asset]
-        }
+      type Asset {
+        type: Type
+        quantity: Int
+      }
+
+      extend type Query {
+        assets: [Asset]
+      }
     `;
   model.resolvers = {
     Query: {

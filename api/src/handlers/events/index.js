@@ -10,10 +10,10 @@ fs.readdirSync(__dirname)
   )
   .forEach(file => {
     try {
-      // eslint-disable-next-line global-require, import/no-dynamic-require
-      const handlers = require(`./${file}`);
+      const name = path.basename(file, '.js');
 
-      Object.assign(module.exports, handlers);
+      // eslint-disable-next-line global-require, import/no-dynamic-require
+      module.exports[name] = require(`./${file}`);
     } catch (e) {
       console.log('was loading', file);
       throw e;

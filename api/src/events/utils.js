@@ -1,4 +1,4 @@
-const gameHandlers = require('./handlers');
+const gameHandlers = require('../handlers/events');
 const db = require('../models');
 
 const {

@@ -1,0 +1,18 @@
+# Modifications in the structure or schema of this file must be reflected
+# in graphql/queueCrafting.js and events/handlers/crafting.js
+
+tools:
+    inputs:
+        iron: 10
+    outputs:
+        tools: 1
+    # all crafting takes time, like factorio
+    duration: 2
+
+factory:
+    inputs:
+        tools: 10
+    outputs:
+        # TODO now I need a way to deploy/setup/start a facility from an asset
+        factory: 1
+    duration: 120

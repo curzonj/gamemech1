@@ -3,12 +3,18 @@
 import * as utils from './utils';
 
 const sleep = require('sleep-promise');
+const config = require('../config');
 const db = require('../models');
 
 const {
   sequelize,
   Sequelize: { Op },
 } = db;
+
+const maxFailedJobRetries = 5;
+const failedJobRetryInterval = 10;
+const workerIntervalSeconds = 5;
+const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
 async function scheduleNextTimer(job, t) {
   if (job.queueId === null || job.nextId === null) {
@@ -42,7 +48,26 @@ function handleJobId(jobId) {
       return;
     }
 
-    await utils.invokeHandler('complete', job, t);
+    let ok = await utils.invokeHandler('complete', job, t)
+      .then(() => true)
+      .catch((err) => {
+        console.log(err)
+
+        false
+      });
+    
+    if (!ok) {
+      return job.update(
+        {
+          triggerAt: utils.nextAt(failedJobRetryInterval * (job.retries + 1)),
+          retries: job.retries + 1,
+        },
+        {
+          transaction: t,
+        }
+      );
+    }
+
     const duration = await utils.invokeHandler('reschedule', job, t);
     if (duration) {
       return job.update(
@@ -69,9 +94,6 @@ function runAt(date, fn) {
   return sleep(Math.max(wait, 0)).then(fn);
 }
 
-const workerIntervalSeconds = 5;
-const dbQueryResultsLimit = 20;
-
 // DO NOT return a promise from this function
 function runSimulation() {
   const deadline = new Date();
@@ -84,6 +106,9 @@ function runSimulation() {
         triggerAt: {
           [Op.lte]: deadline,
         },
+        retries: {
+          [Op.lte]: maxFailedJobRetries,
+        }
       },
       order: [['triggerAt', 'ASC']],
       limit: dbQueryResultsLimit,
@@ -102,6 +127,7 @@ function runSimulation() {
     )
     .catch(err => {
       console.log(err);
+      return runAt(deadline, runSimulation);
     });
 }
 

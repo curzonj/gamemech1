@@ -20,19 +20,19 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   model.typeDefs = `
-        extend type Query {
-            account(id: ID): GameAccount
-            accounts: [GameAccount]
-        }
+      extend type Query {
+        account(id: ID): GameAccount
+        accounts: [GameAccount]
+      }
 
-        type GameAccount {
-            id: ID!
-            details: GameAccountDetails
-        }
+      type GameAccount {
+        id: ID!
+        details: GameAccountDetails
+      }
 
-        type GameAccountDetails {
-            nickname: String
-        }
+      type GameAccountDetails {
+        nickname: String
+      }
     `;
 
   model.resolvers = {
