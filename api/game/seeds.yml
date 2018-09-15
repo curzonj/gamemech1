@@ -1,4 +1,33 @@
-type:
-  - name: iron
-  - name: tools
-  - name: factory
+- model: typeGroup
+  rows:
+    - name: asset
+    - name: facility
+    - name: account
+- model: type
+  rows:
+    - name: player
+      type_group_name: account
+    - name: corporation
+      type_group_name: account
+
+    - name: account
+      type_group_name: facility
+    - name: factory
+      type_group_name: facility
+      details:
+        timerHandler: factoryProduceIron
+
+    - name: iron
+      type_group_name: asset
+    - name: tools
+      type_group_name: asset
+    - name: factory
+      type_group_name: asset
+      details:
+        singleton: true
+        facilityName: factory
+- model: location
+  rows:
+    - name: sector0
+      id: 0
+

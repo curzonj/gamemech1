@@ -1,4 +1,4 @@
-import * as gameHandlers from '../handlers/events';
+import * as gameHandlers from './handlers';
 import * as db from '../models';
 
 const {
@@ -38,14 +38,19 @@ export async function invokeHandler(
   }
 }
 
-export async function unblock(typeId, container, quantity, now = new Date()) {
+export async function unblock(
+  blockedTypeId,
+  blockedContainerId,
+  blockedQuantity,
+  now = new Date()
+) {
   const blocked = await db.timerQueue.findAll({
     attributes: ['id'],
     where: {
-      blockedTypeId: typeId,
-      blockedContainer: container,
+      blockedTypeId,
+      blockedContainerId,
       blockedQuantity: {
-        [Op.lte]: quantity,
+        [Op.lte]: blockedQuantity,
       },
     },
   });
@@ -92,7 +97,6 @@ export async function unblock(typeId, container, quantity, now = new Date()) {
         await queue.update(
           {
             blockedTypeId: null,
-            blockedContainer: null,
             blockedQuantity: null,
           },
           {
@@ -115,10 +119,15 @@ export async function prepareJobToRun(queue, job, t, now = new Date()) {
     // We set the value because we don't know if it's an object
     values.triggerAt = nextAt(duration, now);
   } else {
+    if (!queue) {
+      throw new Error(
+        `invalid prepare handler without queue: ${JSON.stringify(job)}`
+      );
+    }
+
     await queue.update(
       {
         blockedTypeId: reqs.typeId,
-        blockedContainer: reqs.container,
         blockedQuantity: reqs.quantity,
       },
       {
@@ -128,6 +137,11 @@ export async function prepareJobToRun(queue, job, t, now = new Date()) {
   }
 
   await job.update(values, { transaction: t });
+}
+
+export async function createTimer(values, t, now) {
+  const job = await db.timer.create(values, { transaction: t });
+  await prepareJobToRun(null, job, t, now);
 }
 
 export function schedule({ handler, gameAccountId, queueId, details }) {

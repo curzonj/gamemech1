@@ -5,16 +5,23 @@ import game from '../game';
 import * as db from '../models';
 
 const queueCrafting = gqlAuth(async (req, args) => {
-  const queue = await db.timerQueue.findOrCreateAny();
+  const { processName } = args.input;
+  const recipe = game.crafting[processName];
 
-  if (game.crafting[args.input.processName] === undefined) {
+  const queueId = await db.timerQueue.upsertMatchingId(
+    req.user.id,
+    0,
+    recipe.facility
+  );
+
+  if (game.crafting[processName] === undefined) {
     throw new Error(`Invalid processName`);
   }
 
   return schedule({
     gameAccountId: req.user.id,
     handler: 'crafting',
-    queueId: queue.id,
+    queueId,
     details: args.input,
   });
 });

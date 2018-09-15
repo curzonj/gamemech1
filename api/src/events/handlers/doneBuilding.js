@@ -6,10 +6,10 @@ module.exports = {
     const triggerAt = new Date(now);
     triggerAt.setSeconds(triggerAt.getSeconds() + 120);
 
-    const factoryId = await db.type.findIdByName('factory');
+    const { id: factoryId } = await db.type.findByName('factory', 'asset');
 
     return Promise.all([
-      addAsset(gameAccountId, factoryId, 1, t),
+      addAsset(gameAccountId, 0, factoryId, 1, t),
       db.timer.create(
         {
           gameAccountId,
@@ -26,7 +26,7 @@ module.exports = {
   },
 
   async prepare({ gameAccountId }, t) {
-    const toolsId = await db.type.findIdByName('tools');
+    const { id: toolsId } = await db.type.findByName('tools', 'asset');
 
     const a = await db.asset.findOne(
       {
@@ -45,7 +45,6 @@ module.exports = {
       return {
         reqs: {
           typeId: toolsId,
-          container: null,
           quantity: 10,
         },
       };

@@ -2,22 +2,16 @@ import gqlAuth from '../utils/gqlAuth';
 
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
-    'asset',
+    'facility',
     {
       typeId: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
-      },
-      locationId: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
       },
       gameAccountId: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
       },
-      quantity: {
-        type: DataTypes.INTEGER,
+      details: {
+        type: DataTypes.JSONB,
       },
     },
     {
@@ -25,28 +19,20 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  model.removeAttribute('id');
-
   model.typeDefs = `
-      input AssetQuantityInput {
-        id: ID!
-        quantity: Int!
-      }
-
-      type Asset {
+      type Facility {
         type: Type
-        location: Location
-        quantity: Int
+        details: JSON
       }
 
       extend type Query {
-        assets: [Asset]
+        facilities: [Facility]
       }
     `;
 
   model.resolvers = {
     Query: {
-      assets: gqlAuth(req =>
+      facilities: gqlAuth(req =>
         model.findAll({
           where: { gameAccountId: req.user.id },
         })
@@ -58,10 +44,6 @@ module.exports = (sequelize, DataTypes) => {
     return model.db.type.findById(this.typeId);
   };
 
-  model.prototype.location = function location() {
-    return model.db.location.findById(this.locationId);
-  };
-
   model.upsertOnConflict = function upsertOnConflict(values, opts = {}) {
     opts.replacements = values;
     opts.model = model;
@@ -69,9 +51,24 @@ module.exports = (sequelize, DataTypes) => {
     opts.plain = true;
 
     return sequelize.query(
-      'INSERT INTO assets (game_account_id, location_id, type_id, quantity) VALUES (:gameAccountId, :locationId, :typeId, :quantity) ON CONFLICT (game_account_id, location_id, type_id) DO UPDATE SET quantity = assets.quantity + EXCLUDED.quantity RETURNING *',
+      'INSERT INTO facilities (game_account_id, type_id, quantity) VALUES (:gameAccountId, :typeId, :quantity) ON CONFLICT (game_account_id, type_id) DO UPDATE SET quantity = facilities.quantity + EXCLUDED.quantity RETURNING *',
       opts
     );
+  };
+
+  model.findMatchingId = async (gameAccountId, facilityDetails) => {
+    const { id: typeId } = await model.db.type.findByName(
+      facilityDetails.type,
+      'facility'
+    );
+
+    const match = await model.findOne({ where: { typeId, gameAccountId } });
+
+    if (!match) {
+      throw new Error(`no matching facility: ${facilityDetails.type}`);
+    }
+
+    return match.id;
   };
 
   return model;

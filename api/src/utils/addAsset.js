@@ -3,14 +3,21 @@ import reportErr from './reportError';
 import * as db from '../models';
 
 // If t is undefined sequelize will proceed without a transaction. It is optional
-export default async function addAsset(gameAccountId, typeId, quantity, t) {
-  if (isNaN(quantity)) {
-    throw new TypeError(`Expected a number, got: ${quantity}`)
+export default async function addAsset(
+  gameAccountId,
+  locationId,
+  typeId,
+  quantity,
+  t
+) {
+  if (typeof quantity !== 'number' || Number.isNaN(quantity)) {
+    throw new TypeError(`Expected a number, got: ${quantity}`);
   }
 
   const asset = await db.asset.upsertOnConflict(
     {
       gameAccountId,
+      locationId,
       typeId,
       quantity,
     },
@@ -22,7 +29,7 @@ export default async function addAsset(gameAccountId, typeId, quantity, t) {
   // copy the value so if something changes the value it won't affect this code
   const finalQuantity = asset.quantity;
   const callback = () => {
-    unblock(typeId, null, finalQuantity).catch(reportErr);
+    unblock(typeId, locationId, finalQuantity).catch(reportErr);
   };
 
   // It has to run after the transaction happens. The unblocking is slightly

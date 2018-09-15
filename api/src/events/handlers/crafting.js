@@ -1,5 +1,7 @@
 import game from '../../game';
 import addAsset from '../../utils/addAsset';
+import { createTimer } from '../utils';
+import safe from '../../shared/try_catch';
 
 import * as db from '../../models';
 
@@ -15,10 +17,40 @@ module.exports = {
     await recipeOutputs.reduce(async (prev, name) => {
       await prev;
 
-      const typeId = await db.type.findIdByName(name);
+      const type = await db.type.findByName(name, 'asset');
       const quantity = recipe.outputs[name] * runs;
 
-      await addAsset(gameAccountId, typeId, quantity, t);
+      await addAsset(gameAccountId, 0, type.id, quantity, t);
+
+      if (safe(() => type.details.facilityName)) {
+        const facilityType = await db.type.findByName(
+          type.details.facilityName,
+          'facility'
+        );
+        const facility = await db.facility.create(
+          {
+            gameAccountId,
+            typeId: facilityType.id,
+          },
+          { transaction: t }
+        );
+
+        // TODO at some point this will need to be centralized to some
+        // common code for creating new facilities. perhaps the account
+        // facility needs to run a timer
+        if (safe(() => facilityType.details.timerHandler)) {
+          createTimer(
+            {
+              gameAccountId,
+              facilityId: facility.id,
+              handler: 'factoryProduceIron',
+              details: {},
+            },
+            t,
+            now
+          );
+        }
+      }
     }, Promise.resolve());
   },
 
@@ -32,7 +64,7 @@ module.exports = {
         return [prevOk, result];
       }
 
-      const typeId = await db.type.findIdByName(name);
+      const { id: typeId } = await db.type.findByName(name, 'asset');
       const quantity = recipe.inputs[name] * runs;
 
       const a = await db.asset.findOne(
@@ -58,7 +90,6 @@ module.exports = {
             reqs: {
               typeId,
               quantity,
-              container: null,
             },
           },
         ];

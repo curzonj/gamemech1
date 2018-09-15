@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'gameAccount',
     {
-      type: {
-        type: DataTypes.STRING,
+      typeId: {
+        type: DataTypes.INTEGER,
       },
       details: {
         type: DataTypes.JSONB,
@@ -27,11 +27,7 @@ module.exports = (sequelize, DataTypes) => {
 
       type GameAccount {
         id: ID!
-        details: GameAccountDetails
-      }
-
-      type GameAccountDetails {
-        nickname: String
+        details: JSON
       }
     `;
 

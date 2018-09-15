@@ -20,24 +20,49 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  model.associate = function associate(db) {
-    this.db = db;
+  model.getFromDiscord = async function getFromDiscord(profile) {
+    const [user, created] = await model.findOrCreate({
+      where: {
+        discordId: profile.id,
+      },
+      defaults: {
+        discordDetails: profile,
+      },
+    });
+
+    if (!created) {
+      await user.update({
+        discordDetails: profile,
+      });
+    }
+
+    return user.getGameAccount();
   };
 
   model.prototype.getGameAccount = async function getGameAccount() {
     if (this.gameAccountId) {
       return model.db.gameAccount.findById(this.gameAccountId);
     }
-    return sequelize.transaction(async t => {
+    return sequelize.transaction(async transaction => {
       const account = await model.db.gameAccount.create(
         {
-          type: 'player',
+          typeId: (await model.db.type.findByName('player', 'account')).id,
           details: {
             nickname: this.discordDetails.username,
           },
         },
         {
-          transaction: t,
+          transaction,
+        }
+      );
+
+      await model.db.facility.create(
+        {
+          gameAccountId: account.id,
+          typeId: (await model.db.type.findByName('account', 'facility')).id,
+        },
+        {
+          transaction,
         }
       );
 
@@ -46,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
           gameAccountId: account.id,
         },
         {
-          transaction: t,
+          transaction,
         }
       );
 

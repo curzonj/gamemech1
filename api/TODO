@@ -1,0 +1,5 @@
+* Now that crafting tools is async, I don't know how times I need to click the button. I'll need a way to delete timers
+    * deleteTimer
+    * clearQueue
+    * moveTimer(before:, after:)
+* I'll need to expose the timer queues and facilities in graphql

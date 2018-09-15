@@ -30,4 +30,5 @@ postgrator.migrate(process.argv[2])
     // Because migrations prior to the migration with error would have run
     // error object is decorated with appliedMigrations
     console.log(error.appliedMigrations); // array of migration objects
+    process.exit(1)
   });

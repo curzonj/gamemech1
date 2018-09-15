@@ -64,15 +64,20 @@ module.exports = (sequelize, DataTypes) => {
 
   const failedJobRetryInterval = 10;
   model.retryById = function retry(jobId) {
-    return model.update({
-      triggerAt: sequelize.literal(`current_timestamp + ((interval '${failedJobRetryInterval}s') * (retries + 1))`),
-      retries: sequelize.literal('retries + 1'),
-    }, {
-      where: {
-        id: jobId,
+    return model.update(
+      {
+        triggerAt: sequelize.literal(
+          `current_timestamp + ((interval '${failedJobRetryInterval}s') * (retries + 1))`
+        ),
+        retries: sequelize.literal('retries + 1'),
+      },
+      {
+        where: {
+          id: jobId,
+        },
       }
-    })
-  }
+    );
+  };
 
   return model;
 };

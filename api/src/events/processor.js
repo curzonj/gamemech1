@@ -36,42 +36,43 @@ async function scheduleNextTimer(job, t) {
 function handleJobId(jobId) {
   // TODO this needs timeouts or one bad handler could block the entire
   // worker
-  return sequelize.transaction(async t => {
-    const job = await db.timer.findById(jobId, {
-      skipLocked: true,
-      transaction: t,
-      lock: t.LOCK.UPDATE,
-    });
-
-    if (job === null) {
-      return;
-    }
-
-    await utils.invokeHandler('complete', job, t)
-
-    const duration = await utils.invokeHandler('reschedule', job, t);
-    if (duration) {
-      return job.update(
-        {
-          triggerAt: utils.nextAt(duration, job.triggerAt),
-        },
-        {
-          transaction: t,
-        }
-      );
-    }
-
-    return Promise.all([
-      scheduleNextTimer(job, t),
-      job.destroy({
+  return sequelize
+    .transaction(async t => {
+      const job = await db.timer.findById(jobId, {
+        skipLocked: true,
         transaction: t,
-      }),
-    ]);
-  })
-  .catch(err => {
-    reportErr(err);
-    db.timer.retryById(jobId);
-  });
+        lock: t.LOCK.UPDATE,
+      });
+
+      if (job === null) {
+        return;
+      }
+
+      await utils.invokeHandler('complete', job, t);
+
+      const duration = await utils.invokeHandler('reschedule', job, t);
+      if (duration) {
+        return job.update(
+          {
+            triggerAt: utils.nextAt(duration, job.triggerAt),
+          },
+          {
+            transaction: t,
+          }
+        );
+      }
+
+      return Promise.all([
+        scheduleNextTimer(job, t),
+        job.destroy({
+          transaction: t,
+        }),
+      ]);
+    })
+    .catch(err => {
+      reportErr(err);
+      db.timer.retryById(jobId);
+    });
 }
 
 function runAt(date, fn) {

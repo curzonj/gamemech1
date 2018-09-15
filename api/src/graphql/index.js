@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { makeExecutableSchema } from 'graphql-tools';
+import GraphQLJSON from 'graphql-type-json';
 import * as db from '../models';
 import reportError from '../utils/reportError';
-import GraphQLJSON from 'graphql-type-json';
 
 const basename = path.basename(__filename);
 
@@ -21,9 +21,11 @@ const rootDefs = `
 `;
 
 const typeDefs = [rootDefs];
-const resolvers = [{
-  JSON: GraphQLJSON,
-}];
+const resolvers = [
+  {
+    JSON: GraphQLJSON,
+  },
+];
 
 fs.readdirSync(__dirname)
   .filter(

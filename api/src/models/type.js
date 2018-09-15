@@ -5,6 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       name: {
         type: DataTypes.STRING,
       },
+      typeGroupId: {
+        type: DataTypes.INTEGER,
+      },
+      details: {
+        type: DataTypes.JSONB,
+      },
     },
     {
       timestamps: false,
@@ -15,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       type Type {
         id: ID!
         name: String
+        details: JSON
       }
 
       extend type Query {
@@ -30,16 +37,18 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  model.findIdByName = async name => {
+  model.findByName = async function findByName(name, group) {
+    const typeGroupId = await model.db.typeGroup.findIdByName(group);
+
     const record = await model.findOne({
-      where: { name },
+      where: { typeGroupId, name },
     });
 
     if (record === null) {
-      throw new Error(`Unknown type ${name}`);
+      throw new Error(`Unknown ${group} type ${name}`);
     }
 
-    return record.id;
+    return record;
   };
 
   return model;

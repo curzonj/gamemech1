@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Sequelize from 'sequelize';
-import decamelize from 'decamelize';
+import _ from 'lodash';
 import config from '../config';
 
 const basename = path.basename(__filename);
@@ -22,7 +22,7 @@ sequelize.addHook('beforeDefine', attributes => {
   Object.keys(attributes).forEach(key => {
     if (typeof attributes[key] !== 'function') {
       // eslint-disable-next-line no-param-reassign
-      attributes[key].field = decamelize(key);
+      attributes[key].field = _.snakeCase(key);
     }
   });
 });

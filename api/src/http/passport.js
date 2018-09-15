@@ -2,6 +2,7 @@ import { Strategy as DiscordStrategy } from 'passport-discord';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import config from '../config';
 import * as db from '../models';
+import reportError from '../utils/reportError';
 
 const discordScopes = ['identify', 'email'];
 
@@ -15,26 +16,14 @@ function translateDiscordProfileToAccount(
   profile.scopes = discordScopes;
 
   db.userProfile
-    .findOrCreate({
-      where: {
-        discordId: profile.id,
-      },
-      defaults: {
-        discordDetails: profile,
-      },
-    })
-    .then(async ([user, created]) => {
-      if (!created) {
-        await user.update({
-          discordDetails: profile,
-        });
-      }
-
-      const account = await user.getGameAccount();
-
+    .getFromDiscord(profile)
+    .then(account => {
       done(null, account);
     })
-    .catch(err => done(err));
+    .catch(err => {
+      reportError(err);
+      done(err);
+    });
 }
 
 export default function(passport) {
@@ -47,7 +36,10 @@ export default function(passport) {
       .then(account => {
         done(null, account);
       })
-      .catch(err => done(err));
+      .catch(err => {
+        reportError(err);
+        done(err);
+      });
   });
 
   passport.use(
@@ -85,7 +77,10 @@ export default function(passport) {
         .then(account => {
           done(null, account);
         })
-        .catch(err => done(err));
+        .catch(err => {
+          reportError(err);
+          done(err);
+        });
     })
   );
 }
