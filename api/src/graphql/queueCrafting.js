@@ -5,12 +5,11 @@ import game from '../game';
 import * as db from '../models';
 
 const queueCrafting = gqlAuth(async (req, args) => {
-  const { processName } = args.input;
+  const { processName, runs } = args.input;
   const recipe = game.crafting[processName];
 
-  const queueId = await db.timerQueue.upsertMatchingId(
+  const facilityId = await db.facility.findMatchingId(
     req.user.id,
-    0,
     recipe.facility
   );
 
@@ -21,8 +20,8 @@ const queueCrafting = gqlAuth(async (req, args) => {
   return schedule({
     gameAccountId: req.user.id,
     handler: 'crafting',
-    queueId,
-    details: args.input,
+    facilityId,
+    details: { processName, runs },
   });
 });
 
@@ -30,7 +29,7 @@ exports.typeDefs = `
   input QueueCraftingInput {
     processName: String!,
     runs: Int!
-    inputs: [AssetQuantityInput!]!
+    inputs: [AssetQuantityInput]
   }
 
   extend type Mutation {

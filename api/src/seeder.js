@@ -45,6 +45,9 @@ sequelize
           }
         }, Promise.resolve());
 
+        const { details } = row;
+        delete row.details;
+
         const existing = await model.findOne({
           where: row,
           transaction,
@@ -52,6 +55,8 @@ sequelize
 
         if (!existing) {
           await model.create(row, { transaction });
+        } else if (details) {
+          await existing.update({ details });
         }
       }, Promise.resolve());
     }, Promise.resolve());

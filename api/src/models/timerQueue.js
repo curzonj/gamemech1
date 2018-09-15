@@ -4,11 +4,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       gameAccountId: {
         type: DataTypes.INTEGER,
-        unique: 'game_account_id_facility_id_idx',
+        primaryKey: true,
       },
       facilityId: {
         type: DataTypes.INTEGER,
-        unique: 'game_account_id_facility_id_idx',
+        primaryKey: true,
       },
       blockedTypeId: {
         type: DataTypes.INTEGER,
@@ -26,31 +26,50 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  model.upsertMatchingId = async (
+  model.removeAttribute('id');
+
+  model.findLocked = function findLocked(
     gameAccountId,
-    blockedContainerId,
-    facilityDetails
-  ) => {
-    const facilityId = await model.db.facility.findMatchingId(
-      gameAccountId,
-      facilityDetails
+    facilityId,
+    transaction
+  ) {
+    return model.findOne(
+      {
+        gameAccountId,
+        facilityId,
+      },
+      {
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      }
     );
-
-    const [instance] = await model.upsert(
-      { gameAccountId, facilityId, blockedContainerId },
-      { returning: true }
-    );
-
-    return instance.id;
   };
 
-  model.findOrCreateAny = async () => {
-    let first = await model.findOne({});
-    if (!first) {
-      first = await model.create({});
+  model.findOrCreateLocked = async function findOrCreateLocked(
+    gameAccountId,
+    facilityId,
+    blockedContainerId,
+    t
+  ) {
+    let queue = await model.findLocked(gameAccountId, facilityId, t);
+
+    if (!queue) {
+      // The upsert is intentionally not in the transaction. It gives us something
+      // to lock on that other queries can block on locking also
+      await model.upsert({
+        gameAccountId,
+        facilityId,
+        blockedContainerId: 0,
+      });
+
+      queue = await model.findLocked(gameAccountId, facilityId, t);
+
+      if (!queue) {
+        throw new Error(`transaction isolation caused problem timerQueue`);
+      }
     }
 
-    return first;
+    return queue;
   };
 
   return model;

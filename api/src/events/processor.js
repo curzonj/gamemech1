@@ -16,14 +16,16 @@ const workerIntervalSeconds = 5;
 const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
 async function scheduleNextTimer(job, t) {
-  if (job.queueId === null || job.nextId === null) {
+  if (job.nextId === null) {
     return;
   }
 
-  const queue = await db.timerQueue.findById(job.queueId, {
-    transaction: t,
-    lock: t.LOCK.UPDATE,
-  });
+  const queue = await db.timerQueue.findOrCreateLocked(
+    job.gameAccountId,
+    job.facilityId,
+    0, // TODO support locations
+    t
+  );
 
   const next = await db.timer.findById(job.nextId, {
     transaction: t,

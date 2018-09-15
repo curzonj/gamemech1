@@ -15,7 +15,7 @@ export function nextAt(duration, from = new Date()) {
 
 export async function invokeHandler(
   name,
-  { handler, gameAccountId, details, triggerAt },
+  { handler, gameAccountId, facilityId, details, triggerAt },
   t
 ) {
   const fns = gameHandlers[handler];
@@ -24,7 +24,7 @@ export async function invokeHandler(
     return;
   }
 
-  const copy = Object.assign({}, details, { gameAccountId });
+  const copy = Object.assign({}, details, { gameAccountId, facilityId });
 
   switch (name) {
     case 'prepare':
@@ -45,7 +45,7 @@ export async function unblock(
   now = new Date()
 ) {
   const blocked = await db.timerQueue.findAll({
-    attributes: ['id'],
+    attributes: ['gameAccountId', 'facilityId'],
     where: {
       blockedTypeId,
       blockedContainerId,
@@ -57,19 +57,17 @@ export async function unblock(
 
   // Check the queues serially because most likely the first queue in the list
   // will consume enough resources that the rest will remain blocked
-  return blocked.reduce(async (prev, { id }) => {
+  return blocked.reduce(async (prev, { gameAccountId, facilityId }) => {
     await prev;
 
     await sequelize.transaction(async t => {
-      const queue = await db.timerQueue.findById(id, {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
-      });
+      const queue = await db.timerQueue.findLocked(gameAccountId, facilityId, t)
 
       const next = await db.timer.findOne(
         {
           where: {
-            queueId: queue.id,
+            gameAccountId: queue.gameAccountId,
+            facilityId: queue.facilityId,
             listHead: true,
           },
         },
@@ -144,17 +142,20 @@ export async function createTimer(values, t, now) {
   await prepareJobToRun(null, job, t, now);
 }
 
-export function schedule({ handler, gameAccountId, queueId, details }) {
+export function schedule({ handler, gameAccountId, facilityId, details }) {
   return sequelize.transaction(async t => {
-    const queue = await db.timerQueue.findById(queueId, {
-      transaction: t,
-      lock: t.LOCK.UPDATE,
-    });
+    const queue = await db.timerQueue.findOrCreateLocked(
+      gameAccountId,
+      facilityId,
+      0, // TODO support locations
+      t
+    );
 
     const last = await db.timer.findOne(
       {
         where: {
-          queueId,
+          gameAccountId,
+          facilityId,
           nextId: null,
         },
       },
@@ -168,7 +169,7 @@ export function schedule({ handler, gameAccountId, queueId, details }) {
       {
         handler,
         gameAccountId,
-        queueId,
+        facilityId,
         details,
       },
       {

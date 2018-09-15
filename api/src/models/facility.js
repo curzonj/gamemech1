@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       gameAccountId: {
         type: DataTypes.INTEGER,
       },
+      assetInstanceId: {
+        type: DataTypes.INTEGER,
+      },
       details: {
         type: DataTypes.JSONB,
       },
@@ -21,7 +24,11 @@ module.exports = (sequelize, DataTypes) => {
 
   model.typeDefs = `
       type Facility {
+        id: ID!
         type: Type
+        blockedType: Type,
+        blockedQuantity: Int,
+        timers: [Timer],
         details: JSON
       }
 
@@ -31,6 +38,40 @@ module.exports = (sequelize, DataTypes) => {
     `;
 
   model.resolvers = {
+    Facility: {
+      timers: gqlAuth(async (req, args, root, info) => {
+        return model.db.timer.findAll({
+          where: {
+            gameAccountId: req.user.id,
+            facilityId: root.id
+          },
+        })
+      }),
+      blockedQuantity: gqlAuth(async (req, args, root, info) => {
+        let queue = await model.db.timerQueue.findOne({
+          where: {
+            gameAccountId: req.user.id,
+            facilityId: root.id,
+          }
+        })
+
+        if (queue) {
+          return queue.blockedQuantity
+        }
+      }),
+      blockedType: gqlAuth(async (req, args, root, info) => {
+        let queue = await model.db.timerQueue.findOne({
+          where: {
+            gameAccountId: req.user.id,
+            facilityId: root.id,
+          }
+        })
+
+        if (queue) {
+          return model.db.type.findById(queue.blockedTypeId);
+        }
+      })
+    },
     Query: {
       facilities: gqlAuth(req =>
         model.findAll({

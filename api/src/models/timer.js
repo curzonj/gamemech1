@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       nextId: {
         type: DataTypes.INTEGER,
       },
-      queueId: {
+      facilityId: {
         type: DataTypes.INTEGER,
       },
       retries: {

@@ -37,13 +37,14 @@ module.exports = {
 
         // TODO at some point this will need to be centralized to some
         // common code for creating new facilities. perhaps the account
-        // facility needs to run a timer
+        // facility needs to run a timer and could benefit from the code
+        // reuse
         if (safe(() => facilityType.details.timerHandler)) {
-          createTimer(
+          await createTimer(
             {
               gameAccountId,
               facilityId: facility.id,
-              handler: 'factoryProduceIron',
+              handler: facilityType.details.timerHandler,
               details: {},
             },
             t,
@@ -54,7 +55,7 @@ module.exports = {
     }, Promise.resolve());
   },
 
-  async prepare({ gameAccountId, processName, inputs, runs }, t) {
+  async prepare({ gameAccountId, processName, runs }, t) {
     const recipe = game.crafting[processName];
     const recipeInputs = Object.keys(recipe.inputs);
 

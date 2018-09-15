@@ -60,14 +60,14 @@ create table assets (
 
   quantity integer not null,
 
-  primary key(game_account_id, location_id, type_id)
+  primary key (game_account_id, location_id, type_id)
 );
 
 create table asset_instances (
   id bigserial primary key,
 
   game_account_id bigint not null references game_accounts (id),
-  location_id bigint references locations (id),
+  location_id bigint not null references locations (id),
   type_id bigint not null references types (id),
 
   details jsonb
@@ -80,24 +80,24 @@ create table facilities (
   id bigserial primary key,
 
   game_account_id bigint not null references game_accounts (id),
+  asset_instance_id bigint references asset_instances (id),
   type_id bigint not null references types (id),
 
   details jsonb
 );
 
 create table timer_queues (
-  id bigserial primary key,
-
   game_account_id bigint not null references game_accounts (id),
   facility_id bigint not null references facilities (id),
 
   blocked_type_id bigint,
   blocked_container_id bigint not null,
-  blocked_quantity bigint
+  blocked_quantity bigint,
+
+  primary key (game_account_id, facility_id)
 );
 
 create index timer_queue_blockage_idx on timer_queues (blocked_type_id, blocked_container_id, blocked_quantity) where blocked_type_id IS NOT NULL and blocked_quantity IS NOT NULL;
-create unique index game_account_id_facility_id_idx on timer_queues (game_account_id, facility_id);
 
 create table timers (
   id bigserial primary key,
@@ -107,8 +107,7 @@ create table timers (
   trigger_at timestamp with time zone,
   retries int not null default 0,
 
-  facility_id bigint references facilities (id),
-  queue_id bigint references timer_queues (id),
+  facility_id bigint not null references facilities (id),
   next_id bigint references timers (id),
   list_head boolean not null default false,
 
@@ -116,5 +115,7 @@ create table timers (
 );
 
 create index trigger_at_idx on timers (trigger_at, retries) where trigger_at is not null;
-create index queue_id_next_id_idx on timers (queue_id, next_id) where queue_id is not null;
-create unique index queue_id_list_head_idx on timers (queue_id) where list_head and queue_id is not null;
+create index queue_next_id_idx on timers (game_account_id, facility_id, next_id) where next_id is not null;
+
+-- postgresql is unable to represent this as a constraint
+create unique index queue_list_head_idx on timers (game_account_id, facility_id) where list_head;

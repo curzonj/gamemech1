@@ -9,9 +9,9 @@
     "serve": "node dist/server.js",
     "test": "mocha --require @babel/register \"test/**/*.js\"",
     "lint": "eslint --fix src test; true",
-    "migrate": "node migrate.js",
-    "seed": "babel-node src/seeder.js",
-    "db:reset": "npm run migrate 0 && npm run migrate && npm run seed"
+    "db:migrate": "node migrate.js",
+    "db:seed": "babel-node src/seeder.js",
+    "db:reset": "npm run db:migrate 0 && npm run db:migrate && npm run db:seed"
   },
   "keywords": [],
   "author": "",

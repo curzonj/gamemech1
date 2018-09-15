@@ -1,3 +1,6 @@
+## TODO when I merge crafting.yml into this file, I should change the seeder to 
+## load all the files in this directory with a migrations style numeric prefix for ordering
+
 - model: typeGroup
   rows:
     - name: asset
@@ -15,7 +18,12 @@
     - name: factory
       type_group_name: facility
       details:
-        timerHandler: factoryProduceIron
+        # TODO This handler should expect there to be an asset instance attached to it's
+        # facility and that should be the location emitted to
+        # TODO The handler should grab the details from the facility type
+        timerHandler: steadyEmitter
+        outputs:
+          iron: 1
 
     - name: iron
       type_group_name: asset
