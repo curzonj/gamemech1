@@ -1,4 +1,5 @@
-const db = require('../../models');
+import addAsset from '../../utils/addAsset';
+import * as db from '../../models';
 
 module.exports = {
   async complete({ gameAccountId }, t, now) {
@@ -8,16 +9,7 @@ module.exports = {
     const factoryId = await db.type.findIdByName('factory');
 
     return Promise.all([
-      db.asset.upsertOnConflict(
-        {
-          gameAccountId,
-          typeId: factoryId,
-          quantity: 1,
-        },
-        {
-          transaction: t,
-        }
-      ),
+      addAsset(gameAccountId, factoryId, 1, t),
       db.timer.create(
         {
           gameAccountId,

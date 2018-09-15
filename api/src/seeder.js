@@ -1,6 +1,5 @@
 import game from './game';
-
-const db = require('./models');
+import * as db from './models';
 
 const { Sequelize, sequelize } = db;
 

@@ -24,4 +24,4 @@ requireValue('DATABASE_URL');
 requireValue('DISCORD_OAUTH_CLIENT_ID');
 requireValue('DISCORD_OAUTH_CLIENT_SECRET');
 
-module.exports = nconf;
+export default nconf;

@@ -1,4 +1,4 @@
-import { gqlAuthd } from '../utils';
+import gqlAuth from '../utils/gqlAuth';
 
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     `;
   model.resolvers = {
     Query: {
-      assets: gqlAuthd(req =>
+      assets: gqlAuth(req =>
         model.findAll({
           where: { gameAccountId: req.user.id },
         })

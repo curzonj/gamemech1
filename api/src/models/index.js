@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const decamelize = require('decamelize');
+import fs from 'fs';
+import path from 'path';
+import Sequelize from 'sequelize';
+import decamelize from 'decamelize';
+import config from '../config';
 
 const basename = path.basename(__filename);
-const config = require('../config');
 
 const db = {
   models: [],

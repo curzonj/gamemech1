@@ -1,12 +1,15 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { makeExecutableSchema } from 'graphql-tools';
+import * as db from '../models';
+import reportError from '../utils/reportError';
+import GraphQLJSON from 'graphql-type-json';
 
 const basename = path.basename(__filename);
-const { makeExecutableSchema } = require('graphql-tools');
-const db = require('../models');
 
 const rootDefs = `
   scalar DateTime
+  scalar JSON
 
   type Query {
     nothing: ID
@@ -18,7 +21,9 @@ const rootDefs = `
 `;
 
 const typeDefs = [rootDefs];
-const resolvers = [];
+const resolvers = [{
+  JSON: GraphQLJSON,
+}];
 
 fs.readdirSync(__dirname)
   .filter(
@@ -49,10 +54,8 @@ const schema = makeExecutableSchema({
   typeDefs,
   resolvers,
   logger: {
-    log: e => console.log(e),
+    log: reportError,
   },
 });
 
-module.exports = {
-  schema,
-};
+export default schema;

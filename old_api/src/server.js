@@ -3,7 +3,7 @@ const passport = require('passport')
 const morgan = require('morgan')
 const session = require('cookie-session')
 
-const config = require('./config')
+import config from './config';
 const oauth2 = require('./oauth2')
 
 const app = express()

@@ -1,13 +1,12 @@
+import express from 'express';
+import http from 'http';
+import morgan from 'morgan';
+import cors from 'cors';
+import graphqlHTTP from 'express-graphql';
+import schema from './graphql';
+import config from './config';
 import authRouter from './http/authentication';
-
-const express = require('express');
-const http = require('http');
-const morgan = require('morgan');
-const graphqlHTTP = require('express-graphql');
-const cors = require('cors');
-const config = require('./config');
-const { schema } = require('./graphql');
-const startSimulation = require('./events/processor');
+import startSimulation from './events/processor';
 
 const app = express();
 const server = http.createServer(app);

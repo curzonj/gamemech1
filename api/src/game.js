@@ -1,6 +1,6 @@
-const yaml = require('js-yaml');
-const fs = require('fs');
-const path = require('path');
+import yaml from 'js-yaml';
+import fs from 'fs';
+import path from 'path';
 
 const game = {};
 

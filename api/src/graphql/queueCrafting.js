@@ -1,10 +1,10 @@
-import { gqlAuthd } from '../utils';
+import gqlAuth from '../utils/gqlAuth';
 import { schedule } from '../events/utils';
 import game from '../game';
 
-const db = require('../models');
+import * as db from '../models';
 
-const queueCrafting = gqlAuthd(async (req, args) => {
+const queueCrafting = gqlAuth(async (req, args) => {
   const queue = await db.timerQueue.findOrCreateAny();
 
   if (game.crafting[args.input.processName] === undefined) {

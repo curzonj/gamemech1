@@ -1,5 +1,3 @@
-import safe from '../shared/try_catch';
-
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'type',

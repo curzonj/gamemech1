@@ -1,27 +1,25 @@
 import game from '../../game';
+import addAsset from '../../utils/addAsset';
 
-const db = require('../../models');
+import * as db from '../../models';
 
 const {
   Sequelize: { Op },
 } = db;
 
 module.exports = {
-  async complete({ gameAccountId }, t, now) {
-    await recipeInputs.reduce(async (prev, name) => {
-      await prev
+  async complete({ gameAccountId, processName, runs }, t, now) {
+    const recipe = game.crafting[processName];
+    const recipeOutputs = Object.keys(recipe.outputs);
 
-      await db.asset.upsertOnConflict(
-        {
-          gameAccountId,
-          typeId: toolsId,
-          quantity: 1,
-        },
-        {
-          transaction: t,
-        }
-      );
-    }, Promise.resolve())
+    await recipeOutputs.reduce(async (prev, name) => {
+      await prev;
+
+      const typeId = await db.type.findIdByName(name);
+      const quantity = recipe.outputs[name] * runs;
+
+      await addAsset(gameAccountId, typeId, quantity, t);
+    }, Promise.resolve());
   },
 
   async prepare({ gameAccountId, processName, inputs, runs }, t) {

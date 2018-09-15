@@ -1,10 +1,12 @@
+import passport from 'passport';
+import session from 'express-session';
+import jwt from 'jsonwebtoken';
+import fileStoreFn from 'session-file-store';
 import passportConfig from './passport';
+import config from '../config';
+import reportError from '../utils/reportError';
 
-const passport = require('passport');
-const session = require('express-session');
-const FileStore = require('session-file-store')(session);
-const jwt = require('jsonwebtoken');
-const config = require('../config');
+const FileStore = fileStoreFn(session);
 
 passportConfig(passport);
 
@@ -32,7 +34,7 @@ export default function(app) {
 
     passport.authenticate('jwt', (err, user, info) => {
       if (err || !user) {
-        console.log(err);
+        reportError(err);
         return next();
       }
 
@@ -44,7 +46,7 @@ export default function(app) {
         // eslint-disable-next-line no-shadow
         err => {
           if (err) {
-            console.log(err);
+            reportError(err);
           }
 
           return next();

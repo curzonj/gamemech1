@@ -1,19 +1,10 @@
-const db = require('../../models');
+import addAsset from '../../utils/addAsset';
+import * as db from '../../models';
 
 module.exports = {
   async complete({ gameAccountId }, t) {
     const ironId = await db.type.findIdByName('iron');
-
-    return db.asset.upsertOnConflict(
-      {
-        gameAccountId,
-        typeId: ironId,
-        quantity: 1,
-      },
-      {
-        transaction: t,
-      }
-    );
+    await addAsset(gameAccountId, ironId, 1, t);
   },
 
   reschedule(details, t) {

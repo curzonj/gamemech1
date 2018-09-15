@@ -1,17 +1,11 @@
-import { gqlAuthd } from '../utils';
+import gqlAuth from '../utils/gqlAuth';
+import * as db from '../models';
+import addAsset from '../utils/addAsset';
 
-const db = require('../models');
-
-const getStuff = gqlAuthd(async req => {
+const getStuff = gqlAuth(async req => {
   const ironId = await db.type.findIdByName('iron');
 
-  const asset = await db.asset.upsertOnConflict({
-    gameAccountId: req.user.id,
-    typeId: ironId,
-    quantity: 1,
-  });
-
-  // TODO this needs to call unblock on the queues
+  const asset = await addAsset(req.user.id, ironId, 1);
 
   return asset;
 });

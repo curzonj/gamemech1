@@ -1,10 +1,10 @@
 /* eslint consistent-return: 0 */
 
+import sleep from 'sleep-promise';
+import config from '../config';
+import * as db from '../models';
 import * as utils from './utils';
-
-const sleep = require('sleep-promise');
-const config = require('../config');
-const db = require('../models');
+import reportErr from '../utils/reportError';
 
 const {
   sequelize,
@@ -12,7 +12,6 @@ const {
 } = db;
 
 const maxFailedJobRetries = 5;
-const failedJobRetryInterval = 10;
 const workerIntervalSeconds = 5;
 const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
@@ -48,25 +47,7 @@ function handleJobId(jobId) {
       return;
     }
 
-    let ok = await utils.invokeHandler('complete', job, t)
-      .then(() => true)
-      .catch((err) => {
-        console.log(err)
-
-        false
-      });
-    
-    if (!ok) {
-      return job.update(
-        {
-          triggerAt: utils.nextAt(failedJobRetryInterval * (job.retries + 1)),
-          retries: job.retries + 1,
-        },
-        {
-          transaction: t,
-        }
-      );
-    }
+    await utils.invokeHandler('complete', job, t)
 
     const duration = await utils.invokeHandler('reschedule', job, t);
     if (duration) {
@@ -86,6 +67,10 @@ function handleJobId(jobId) {
         transaction: t,
       }),
     ]);
+  })
+  .catch(err => {
+    reportErr(err);
+    db.timer.retryById(jobId);
   });
 }
 
@@ -95,7 +80,7 @@ function runAt(date, fn) {
 }
 
 // DO NOT return a promise from this function
-function runSimulation() {
+export default function runSimulation() {
   const deadline = new Date();
   deadline.setSeconds(deadline.getSeconds() + workerIntervalSeconds);
 
@@ -108,7 +93,7 @@ function runSimulation() {
         },
         retries: {
           [Op.lte]: maxFailedJobRetries,
-        }
+        },
       },
       order: [['triggerAt', 'ASC']],
       limit: dbQueryResultsLimit,
@@ -126,9 +111,7 @@ function runSimulation() {
       })
     )
     .catch(err => {
-      console.log(err);
+      reportErr(err);
       return runAt(deadline, runSimulation);
     });
 }
-
-module.exports = runSimulation;

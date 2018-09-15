@@ -1,9 +1,9 @@
-import { gqlAuthd } from '../utils';
+import gqlAuth from '../utils/gqlAuth';
 import { schedule } from '../events/utils';
 
-const db = require('../models');
+import * as db from '../models';
 
-const buildThing = gqlAuthd(async req => {
+const buildThing = gqlAuth(async req => {
   const queue = await db.timerQueue.findOrCreateAny();
 
   return schedule({

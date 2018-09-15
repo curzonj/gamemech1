@@ -1,5 +1,5 @@
-const gameHandlers = require('../handlers/events');
-const db = require('../models');
+import * as gameHandlers from '../handlers/events';
+import * as db from '../models';
 
 const {
   sequelize,

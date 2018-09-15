@@ -1,7 +1,7 @@
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const { Strategy: DiscordStrategy } = require('passport-discord');
-const config = require('../config');
-const db = require('../models');
+import { Strategy as DiscordStrategy } from 'passport-discord';
+import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
+import config from '../config';
+import * as db from '../models';
 
 const discordScopes = ['identify', 'email'];
 
