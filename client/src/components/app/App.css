@@ -23,12 +23,16 @@
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .App-actions > button {
-  background-color: #4CAF50; /* Green */
+  background-color: #4caf50; /* Green */
   border: none;
   color: white;
   padding: 15px 32px;
@@ -37,4 +41,8 @@
   display: inline-block;
   font-size: 16px;
   margin: 60px;
+}
+
+.App-number {
+  margin-right: 15px;
 }

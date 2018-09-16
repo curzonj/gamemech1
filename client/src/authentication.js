@@ -1,4 +1,4 @@
-const Store = require('locallyjs').Store;
+const { Store } = require('locallyjs');
 
 const storageAPI = new Store();
 
@@ -41,6 +41,12 @@ export function redirectAuthentication() {
 export function logout() {
   // It's a JWT token so all we need to do to log out is lose it
   storageAPI.remove('authToken');
+}
+
+export function isAuthenticated() {
+  const authToken = storageAPI.get('authToken');
+
+  return authToken !== null && authToken !== 'null';
 }
 
 export function injectAuthHeader(headers) {
