@@ -1,4 +1,3 @@
-import game from '../../game';
 import addAsset from '../../utils/addAsset';
 import { createTimer } from '../utils';
 import safe from '../../shared/try_catch';
@@ -11,7 +10,12 @@ const {
 
 module.exports = {
   async complete({ gameAccountId, processName, runs }, t, now) {
-    const recipe = game.crafting[processName];
+    const recipe = await db.recipe.findOne({
+      where: {
+        identityKey: processName,
+      },
+    });
+
     const recipeOutputs = Object.keys(recipe.outputs);
 
     await recipeOutputs.reduce(async (prev, name) => {
@@ -56,7 +60,11 @@ module.exports = {
   },
 
   async prepare({ gameAccountId, processName, runs }, t) {
-    const recipe = game.crafting[processName];
+    const recipe = await db.recipe.findOne({
+      where: {
+        identityKey: processName,
+      },
+    });
     const recipeInputs = Object.keys(recipe.inputs);
 
     const [ok, out] = await recipeInputs.reduce(async (prev, name) => {

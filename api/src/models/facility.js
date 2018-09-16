@@ -39,38 +39,39 @@ module.exports = (sequelize, DataTypes) => {
 
   model.resolvers = {
     Facility: {
-      timers: gqlAuth(async (req, args, root, info) => {
-        return model.db.timer.findAll({
-          where: {
-            gameAccountId: req.user.id,
-            facilityId: root.id
-          },
-        })
-      }),
-      blockedQuantity: gqlAuth(async (req, args, root, info) => {
-        let queue = await model.db.timerQueue.findOne({
+      type: gqlAuth(req => model.db.type.dataloader(req).load(this.typeId)),
+      timers: gqlAuth(async (req, args, root, info) =>
+        model.db.timer.findAll({
           where: {
             gameAccountId: req.user.id,
             facilityId: root.id,
-          }
+          },
         })
+      ),
+      blockedQuantity: gqlAuth(async (req, args, root, info) => {
+        const queue = await model.db.timerQueue.findOne({
+          where: {
+            gameAccountId: req.user.id,
+            facilityId: root.id,
+          },
+        });
 
         if (queue) {
-          return queue.blockedQuantity
+          return queue.blockedQuantity;
         }
       }),
       blockedType: gqlAuth(async (req, args, root, info) => {
-        let queue = await model.db.timerQueue.findOne({
+        const queue = await model.db.timerQueue.findOne({
           where: {
             gameAccountId: req.user.id,
             facilityId: root.id,
-          }
-        })
+          },
+        });
 
         if (queue) {
           return model.db.type.findById(queue.blockedTypeId);
         }
-      })
+      }),
     },
     Query: {
       facilities: gqlAuth(req =>
@@ -79,10 +80,6 @@ module.exports = (sequelize, DataTypes) => {
         })
       ),
     },
-  };
-
-  model.prototype.type = function type() {
-    return model.db.type.findById(this.typeId);
   };
 
   model.upsertOnConflict = function upsertOnConflict(values, opts = {}) {

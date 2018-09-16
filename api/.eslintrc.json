@@ -1,25 +1,25 @@
 {
-    "extends": ["airbnb-base", "plugin:prettier/recommended"],
-    "parserOptions": {
-        "sourceType": "module"
-    },
-    "env": {
-        "es6": true,
-        "node": true,
-        "mocha": true
-    },
-    "rules": {
-        "no-await-in-loop": 0,
-        "consistent-return": 0,
-        "no-param-reassign": 0,
-        "no-console": 0,
-        "no-unused-vars": [
-            "error",
-            {
-                "vars": "all",
-                "args": "none",
-                "ignoreRestSiblings": true
-            }
-        ]
-    }
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-await-in-loop": 0,
+    "consistent-return": 0,
+    "no-param-reassign": 0,
+    "no-console": 0,
+    "no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "none",
+        "ignoreRestSiblings": true
+      }
+    ]
+  }
 }

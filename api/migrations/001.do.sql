@@ -26,6 +26,15 @@ create table types (
   details jsonb
 );
 
+create table loot_tables (
+  name text not null,
+  threshold double precision not null,
+
+  details jsonb,
+
+  primary key (name, threshold)
+);
+
 create unique index name_on_type_group_id_idx on types (type_group_id, name);
 
 create table game_accounts (
@@ -73,7 +82,19 @@ create table asset_instances (
   details jsonb
 );
 
+create table recipes  (
+  id bigserial primary key,
+
+  -- used to facility generating recipes and updating them
+  identity_key text unique not null,
+
+  facility_type_id bigint references types (id),
+
+  details jsonb
+);
+
 -- definition: a stock or supply of money, materials, staff, and other assets that can be drawn on by a person or organization in order to function effectively.
+-- create table resources
 
 -- definition: an option or service that gives the opportunity to do or benefit from something.
 create table facilities (

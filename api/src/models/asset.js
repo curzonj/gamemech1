@@ -45,6 +45,14 @@ module.exports = (sequelize, DataTypes) => {
     `;
 
   model.resolvers = {
+    Asset: {
+      type: gqlAuth((req, args, root) =>
+        model.db.type.dataloader(req).load(root.typeId)
+      ),
+      location: gqlAuth((req, args, root) =>
+        model.db.location.dataloader(req).load(root.locationId)
+      ),
+    },
     Query: {
       assets: gqlAuth(req =>
         model.findAll({
@@ -52,14 +60,6 @@ module.exports = (sequelize, DataTypes) => {
         })
       ),
     },
-  };
-
-  model.prototype.type = function type() {
-    return model.db.type.findById(this.typeId);
-  };
-
-  model.prototype.location = function location() {
-    return model.db.location.findById(this.locationId);
   };
 
   model.upsertOnConflict = function upsertOnConflict(values, opts = {}) {

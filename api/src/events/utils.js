@@ -61,7 +61,11 @@ export async function unblock(
     await prev;
 
     await sequelize.transaction(async t => {
-      const queue = await db.timerQueue.findLocked(gameAccountId, facilityId, t)
+      const queue = await db.timerQueue.findLocked(
+        gameAccountId,
+        facilityId,
+        t
+      );
 
       const next = await db.timer.findOne(
         {

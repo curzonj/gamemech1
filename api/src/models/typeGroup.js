@@ -31,9 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   };
 
-  model.findIdByName = async function findIdByName(name) {
+  model.findIdByName = async function findIdByName(name, transaction) {
     const record = await model.findOne({
       where: { name },
+      transaction,
     });
 
     if (record === null) {

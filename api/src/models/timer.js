@@ -46,6 +46,8 @@ module.exports = (sequelize, DataTypes) => {
         handler: String!
         triggerAt: DateTime
         retries: Int
+        nextId: ID
+        listHead: Boolean
         details: JSON
       }
     `;
