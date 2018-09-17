@@ -4,7 +4,7 @@ import { schedule } from '../events/utils';
 import * as db from '../models';
 
 const queueCrafting = gqlAuth(async (req, args) => {
-  const { processName, runs } = args.input;
+  const { processName, runs, locationId } = args.input;
   const recipe = await db.recipe.findOne({
     where: {
       identityKey: processName,
@@ -15,22 +15,31 @@ const queueCrafting = gqlAuth(async (req, args) => {
     throw new Error(`Invalid processName`);
   }
 
-  const facilityId = await db.facility.findMatchingId(
-    req.user.id,
-    recipe.facility
-  );
+  const facilityType = await recipe.facilityType();
+  const facility = await db.assetInstance.findOne({
+    where: {
+      gameAccountId: req.user.id,
+      locationId,
+      typeId: facilityType.id,
+    },
+  });
+
+  if (!facility) {
+    throw new Error(`No available ${facilityType.name} facilities.`);
+  }
 
   return schedule({
     gameAccountId: req.user.id,
     handler: 'crafting',
-    facilityId,
+    assetInstanceId: facility.id,
     details: { processName, runs },
   });
 });
 
 exports.typeDefs = `
   input QueueCraftingInput {
-    processName: String!,
+    processName: String!
+    locationId: ID!
     runs: Int!
     inputs: [AssetQuantityInput]
   }

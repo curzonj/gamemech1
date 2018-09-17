@@ -1,5 +1,6 @@
 import * as gameHandlers from './handlers';
 import * as db from '../models';
+import safe from '../shared/try_catch';
 
 const {
   sequelize,
@@ -13,29 +14,9 @@ export function nextAt(duration, from = new Date()) {
   return next;
 }
 
-export async function invokeHandler(
-  name,
-  { handler, gameAccountId, facilityId, details, triggerAt },
-  t
-) {
-  const fns = gameHandlers[handler];
-
-  if (fns[name] === undefined) {
-    return;
-  }
-
-  const copy = Object.assign({}, details, { gameAccountId, facilityId });
-
-  switch (name) {
-    case 'prepare':
-      return fns.prepare(copy, t);
-    case 'complete':
-      return fns.complete(copy, t, triggerAt);
-    case 'reschedule':
-      return fns.reschedule(copy, t);
-    default:
-      throw new Error('unsupported handler operation');
-  }
+export async function invokeHandler(name, job, t) {
+  const fn = safe(() => gameHandlers[job.handler][name], () => undefined);
+  return fn(job, t);
 }
 
 export async function unblock(
@@ -45,7 +26,7 @@ export async function unblock(
   now = new Date()
 ) {
   const blocked = await db.timerQueue.findAll({
-    attributes: ['gameAccountId', 'facilityId'],
+    attributes: ['gameAccountId', 'assetInstanceId'],
     where: {
       blockedTypeId,
       blockedContainerId,
@@ -57,13 +38,13 @@ export async function unblock(
 
   // Check the queues serially because most likely the first queue in the list
   // will consume enough resources that the rest will remain blocked
-  return blocked.reduce(async (prev, { gameAccountId, facilityId }) => {
+  return blocked.reduce(async (prev, { gameAccountId, assetInstanceId }) => {
     await prev;
 
     await sequelize.transaction(async t => {
       const queue = await db.timerQueue.findLocked(
         gameAccountId,
-        facilityId,
+        assetInstanceId,
         t
       );
 
@@ -71,7 +52,7 @@ export async function unblock(
         {
           where: {
             gameAccountId: queue.gameAccountId,
-            facilityId: queue.facilityId,
+            assetInstanceId: queue.assetInstanceId,
             listHead: true,
           },
         },
@@ -146,12 +127,16 @@ export async function createTimer(values, t, now) {
   await prepareJobToRun(null, job, t, now);
 }
 
-export function schedule({ handler, gameAccountId, facilityId, details }) {
+export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
   return sequelize.transaction(async t => {
+    const facility = await db.assetInstance.findById(assetInstanceId, {
+      transaction: t,
+    });
+
     const queue = await db.timerQueue.findOrCreateLocked(
       gameAccountId,
-      facilityId,
-      0, // TODO support locations
+      assetInstanceId,
+      facility.locationId,
       t
     );
 
@@ -159,7 +144,7 @@ export function schedule({ handler, gameAccountId, facilityId, details }) {
       {
         where: {
           gameAccountId,
-          facilityId,
+          assetInstanceId,
           nextId: null,
         },
       },
@@ -173,7 +158,7 @@ export function schedule({ handler, gameAccountId, facilityId, details }) {
       {
         handler,
         gameAccountId,
-        facilityId,
+        assetInstanceId,
         details,
       },
       {

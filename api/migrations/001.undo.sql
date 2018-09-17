@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS timers;
 DROP TABLE IF EXISTS timer_queues;
 DROP TABLE IF EXISTS recipes;
-DROP TABLE IF EXISTS facilities;
 DROP TABLE IF EXISTS asset_instances;
 DROP TABLE IF EXISTS assets;
 DROP TABLE IF EXISTS user_profiles;

@@ -5,7 +5,12 @@ import addAsset from '../utils/addAsset';
 const getStuff = gqlAuth(async req => {
   const { id: ironId } = await db.type.findByName('iron', 'asset');
 
-  const asset = await addAsset(req.user.id, 1, ironId, 1);
+  const asset = await addAsset(
+    req.user.id,
+    db.location.EverywhereId,
+    ironId,
+    1
+  );
 
   return asset;
 });

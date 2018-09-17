@@ -2,8 +2,8 @@ import addAsset from '../../utils/addAsset';
 import * as db from '../../models';
 
 module.exports = {
-  async complete({ gameAccountId, facilityId }, t) {
-    const facility = await db.facility.findById(facilityId);
+  async complete({ gameAccountId, assetInstanceId, triggerAt }, t) {
+    const facility = await db.assetInstance.findById(assetInstanceId);
     const facilityType = await db.type.findById(facility.typeId);
     const { outputs } = facilityType.details;
     const outputNames = Object.keys(outputs);
@@ -14,8 +14,14 @@ module.exports = {
       const type = await db.type.findByName(name, 'asset');
       const quantity = outputs[name];
 
-      // TODO fix the location so it's tied to something
-      await addAsset(gameAccountId, 0, type.id, quantity, t);
+      await addAsset(
+        gameAccountId,
+        facility.locationId,
+        type.id,
+        quantity,
+        triggerAt,
+        t
+      );
     }, Promise.resolve());
   },
 
@@ -25,7 +31,7 @@ module.exports = {
     };
   },
 
-  reschedule(details, t) {
+  reschedule(job, t) {
     return 120;
   },
 };

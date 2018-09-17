@@ -90,12 +90,14 @@ create table asset_instances (
 create table recipes  (
   id bigserial primary key,
 
-  -- used to facility generating recipes and updating them
+  -- used to facilitate generating recipes and updating them
   identity_key text unique not null,
-  inputs bigint[] not null,
-  outputs bigint[] not null,
 
   facility_type_id bigint references types (id),
+
+  dependencies bigint[] not null,
+  consumables bigint[] not null,
+  outputs bigint[] not null,
 
   details jsonb
 );
@@ -103,26 +105,15 @@ create table recipes  (
 -- definition: a stock or supply of money, materials, staff, and other assets that can be drawn on by a person or organization in order to function effectively.
 -- create table resources
 
--- definition: an option or service that gives the opportunity to do or benefit from something.
-create table facilities (
-  id bigserial primary key,
-
-  game_account_id bigint not null references game_accounts (id),
-  asset_instance_id bigint references asset_instances (id),
-  type_id bigint not null references types (id),
-
-  details jsonb
-);
-
 create table timer_queues (
   game_account_id bigint not null references game_accounts (id),
-  facility_id bigint not null references facilities (id),
+  asset_instance_id bigint not null references asset_instances (id),
 
   blocked_type_id bigint,
   blocked_container_id bigint not null,
   blocked_quantity bigint,
 
-  primary key (game_account_id, facility_id)
+  primary key (game_account_id, asset_instance_id)
 );
 
 create index on timer_queues (blocked_type_id, blocked_container_id, blocked_quantity) where blocked_type_id IS NOT NULL and blocked_quantity IS NOT NULL;
@@ -135,7 +126,7 @@ create table timers (
   trigger_at timestamp with time zone,
   retries int not null default 0,
 
-  facility_id bigint not null references facilities (id),
+  asset_instance_id bigint not null references asset_instances (id),
   next_id bigint references timers (id),
   list_head boolean not null default false,
 
@@ -143,7 +134,7 @@ create table timers (
 );
 
 create index on timers (trigger_at, retries) where trigger_at is not null;
-create index on timers (game_account_id, facility_id, next_id) where next_id is not null;
+create index on timers (game_account_id, asset_instance_id, next_id) where next_id is not null;
 
 -- postgresql is unable to represent this as a constraint
-create unique index queue_list_head_idx on timers (game_account_id, facility_id) where list_head;
+create unique index queue_list_head_idx on timers (game_account_id, asset_instance_id) where list_head;

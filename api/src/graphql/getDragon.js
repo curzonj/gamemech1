@@ -8,7 +8,12 @@ const getDragon = gqlAuth(async req => {
     details.list[Math.floor(Math.random() * details.list.length)];
   const { id: typeId } = await db.type.findByName(typeName, 'asset');
 
-  const asset = await addAsset(req.user.id, 1, typeId, 1);
+  const asset = await addAsset(
+    req.user.id,
+    db.location.EverywhereId,
+    typeId,
+    1
+  );
 
   return asset;
 });

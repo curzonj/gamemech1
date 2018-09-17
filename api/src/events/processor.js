@@ -20,10 +20,15 @@ async function scheduleNextTimer(job, t) {
     return;
   }
 
+  // TODO eventually I want to support containerIds different than the location
+  // of the asset. Like having timers on ships and them being a container for
+  // tangible or intangible assets.
+  const facility = await db.assetInstance.findById(job.assetInstanceId);
+
   const queue = await db.timerQueue.findOrCreateLocked(
     job.gameAccountId,
-    job.facilityId,
-    0, // TODO support locations
+    job.assetInstanceId,
+    facility.locationId,
     t
   );
 

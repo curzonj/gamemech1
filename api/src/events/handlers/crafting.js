@@ -9,7 +9,17 @@ const {
 } = db;
 
 module.exports = {
-  async complete({ gameAccountId, processName, runs }, t, now) {
+  async complete(
+    {
+      gameAccountId,
+      assetInstanceId,
+      processName,
+      triggerAt,
+      details: { runs },
+    },
+    t
+  ) {
+    const facility = await db.assetInstance.findById(assetInstanceId);
     const recipe = await db.recipe.findOne({
       where: {
         identityKey: processName,
@@ -24,16 +34,24 @@ module.exports = {
       const type = await db.type.findByName(name, 'asset');
       const quantity = recipe.outputs[name] * runs;
 
-      await addAsset(gameAccountId, 0, type.id, quantity, t);
+      await addAsset(
+        gameAccountId,
+        facility.locationId,
+        type.id,
+        quantity,
+        triggerAt,
+        t
+      );
 
       if (safe(() => type.details.facilityName)) {
         const facilityType = await db.type.findByName(
           type.details.facilityName,
           'facility'
         );
-        const facility = await db.facility.create(
+        const newFacility = await db.assetInstances.create(
           {
             gameAccountId,
+            locationId: facility.locationId,
             typeId: facilityType.id,
           },
           { transaction: t }
@@ -47,19 +65,27 @@ module.exports = {
           await createTimer(
             {
               gameAccountId,
-              facilityId: facility.id,
+              assetInstanceId: newFacility.id,
               handler: facilityType.details.timerHandler,
               details: {},
             },
             t,
-            now
+            triggerAt
           );
         }
       }
     }, Promise.resolve());
   },
 
-  async prepare({ gameAccountId, processName, runs }, t) {
+  async prepare(
+    {
+      gameAccountId,
+      assetInstanceId,
+      details: { processName, runs },
+    },
+    t
+  ) {
+    const facility = await db.assetInstance.findById(assetInstanceId);
     const recipe = await db.recipe.findOne({
       where: {
         identityKey: processName,
@@ -80,6 +106,7 @@ module.exports = {
         {
           where: {
             gameAccountId,
+            locationId: facility.locationId,
             typeId,
             quantity: {
               [Op.gte]: quantity,

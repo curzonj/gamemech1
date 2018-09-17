@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
       },
-      facilityId: {
+      assetInstanceId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
       },
@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
 
   model.findLocked = function findLocked(
     gameAccountId,
-    facilityId,
+    assetInstanceId,
     transaction
   ) {
     return model.findOne(
       {
         gameAccountId,
-        facilityId,
+        assetInstanceId,
       },
       {
         transaction,
@@ -47,22 +47,24 @@ module.exports = (sequelize, DataTypes) => {
 
   model.findOrCreateLocked = async function findOrCreateLocked(
     gameAccountId,
-    facilityId,
+    assetInstanceId,
     blockedContainerId,
     t
   ) {
-    let queue = await model.findLocked(gameAccountId, facilityId, t);
+    let queue = await model.findLocked(gameAccountId, assetInstanceId, t);
 
     if (!queue) {
       // The upsert is intentionally not in the transaction. It gives us something
       // to lock on that other queries can block on locking also
       await model.upsert({
         gameAccountId,
-        facilityId,
-        blockedContainerId: 0,
+        assetInstanceId,
+        blockedContainerId,
       });
 
-      queue = await model.findLocked(gameAccountId, facilityId, t);
+      // TODO what happens with queue containerIds when an assetInstance can move between locations?
+
+      queue = await model.findLocked(gameAccountId, assetInstanceId, t);
 
       if (!queue) {
         throw new Error(`transaction isolation caused problem timerQueue`);

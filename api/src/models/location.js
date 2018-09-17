@@ -32,6 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   `;
 
+  model.EverywhereId = 1;
+
   model.resolvers = {
     Query: {
       location: (root, args) => model.findById(args.id),

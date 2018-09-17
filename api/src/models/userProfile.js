@@ -63,9 +63,10 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
 
-      await model.db.facility.create(
+      await model.db.assetInstance.create(
         {
           gameAccountId: account.id,
+          locationId: model.db.location.EverywhereId,
           typeId: (await model.db.type.findByName('account', 'facility')).id,
         },
         {

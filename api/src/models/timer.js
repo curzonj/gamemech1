@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       nextId: {
         type: DataTypes.INTEGER,
       },
-      facilityId: {
+      assetInstanceId: {
         type: DataTypes.INTEGER,
       },
       retries: {
