@@ -6,9 +6,11 @@
     - name: everywhere
 - model: typeGroup
   rows:
-    - name: asset
+    - name: material
     - name: facility
+    - name: structure
     - name: account
+    - name: dragons
 - model: type
   rows:
     - name: player
@@ -18,21 +20,14 @@
 
     - name: account
       type_group_name: facility
-    - name: factory
-      type_group_name: facility
+    - name: mine
+      type_group_name: structure
       details:
-        # TODO This handler should expect there to be an asset instance attached to it's
-        # facility and that should be the location emitted to
         timerHandler: steadyEmitter
         outputs:
           iron: 1
 
     - name: iron
-      type_group_name: asset
+      type_group_name: material
     - name: tools
-      type_group_name: asset
-    - name: factory
-      type_group_name: asset
-      details:
-        singleton: true
-        facilityName: factory
+      type_group_name: material

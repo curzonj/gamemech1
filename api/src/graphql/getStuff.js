@@ -3,7 +3,7 @@ import * as db from '../models';
 import addAsset from '../utils/addAsset';
 
 const getStuff = gqlAuth(async req => {
-  const { id: ironId } = await db.type.findByName('iron', 'asset');
+  const { id: ironId } = await db.type.findByName('iron', 'material');
 
   const asset = await addAsset(
     req.user.id,

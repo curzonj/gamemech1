@@ -11,7 +11,7 @@ module.exports = {
     await outputNames.reduce(async (prev, name) => {
       await prev;
 
-      const type = await db.type.findByName(name, 'asset');
+      const type = await db.type.findByName(name, 'material');
       const quantity = outputs[name];
 
       await addAsset(

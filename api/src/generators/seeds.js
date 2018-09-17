@@ -48,9 +48,6 @@ export default async function(transaction) {
         }
       }, Promise.resolve());
 
-      const { details } = row;
-      delete row.details;
-
       const existing = await model.findOne({
         where: {
           name: row.name,
@@ -58,10 +55,10 @@ export default async function(transaction) {
         transaction,
       });
 
-      if (!existing) {
+      if (existing) {
+        await existing.update(row, { transaction });
+      } else {
         await model.bulkCreate([row], { transaction });
-      } else if (details) {
-        await existing.update({ details }, { transaction });
       }
     }, Promise.resolve());
   }, Promise.resolve());

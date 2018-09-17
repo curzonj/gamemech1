@@ -94,6 +94,7 @@ create table recipes  (
   identity_key text unique not null,
 
   facility_type_id bigint references types (id),
+  duration int not null,
 
   dependencies bigint[] not null,
   consumables bigint[] not null,

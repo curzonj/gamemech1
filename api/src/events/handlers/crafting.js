@@ -8,14 +8,17 @@ const {
   Sequelize: { Op },
 } = db;
 
+const structureGroupIdPromise = db.typeGroup.findOne({
+  where: { name: 'structure' },
+});
+
 module.exports = {
   async complete(
     {
       gameAccountId,
       assetInstanceId,
-      processName,
       triggerAt,
-      details: { runs },
+      details: { processName, runs },
     },
     t
   ) {
@@ -26,53 +29,47 @@ module.exports = {
       },
     });
 
-    const recipeOutputs = Object.keys(recipe.outputs);
+    const recipeOutputs = recipe.details.outputs;
+    const recipeOutputNames = Object.keys(recipeOutputs);
 
-    await recipeOutputs.reduce(async (prev, name) => {
+    await recipeOutputNames.reduce(async (prev, typeId) => {
       await prev;
 
-      const type = await db.type.findByName(name, 'asset');
-      const quantity = recipe.outputs[name] * runs;
+      const { id: structureGroupId } = await structureGroupIdPromise;
+      const type = await db.type.findById(typeId);
+      const quantity = recipeOutputs[typeId] * runs;
 
-      await addAsset(
-        gameAccountId,
-        facility.locationId,
-        type.id,
-        quantity,
-        triggerAt,
-        t
-      );
-
-      if (safe(() => type.details.facilityName)) {
-        const facilityType = await db.type.findByName(
-          type.details.facilityName,
-          'facility'
-        );
-        const newFacility = await db.assetInstances.create(
+      if (type.typeGroupId === structureGroupId) {
+        const asset = await db.assetInstance.create(
           {
             gameAccountId,
             locationId: facility.locationId,
-            typeId: facilityType.id,
+            typeId,
           },
           { transaction: t }
         );
 
-        // TODO at some point this will need to be centralized to some
-        // common code for creating new facilities. perhaps the account
-        // facility needs to run a timer and could benefit from the code
-        // reuse
-        if (safe(() => facilityType.details.timerHandler)) {
+        if (safe(() => type.details.timerHandler)) {
           await createTimer(
             {
               gameAccountId,
-              assetInstanceId: newFacility.id,
-              handler: facilityType.details.timerHandler,
+              assetInstanceId: asset.id,
+              handler: type.details.timerHandler,
               details: {},
             },
             t,
             triggerAt
           );
         }
+      } else {
+        await addAsset(
+          gameAccountId,
+          facility.locationId,
+          typeId,
+          quantity,
+          triggerAt,
+          t
+        );
       }
     }, Promise.resolve());
   },
@@ -91,33 +88,29 @@ module.exports = {
         identityKey: processName,
       },
     });
-    const recipeInputs = Object.keys(recipe.inputs);
+    const recipeInputs = recipe.details.inputs;
+    const recipeInputNames = Object.keys(recipeInputs);
 
-    const [ok, out] = await recipeInputs.reduce(async (prev, name) => {
+    const [ok, out] = await recipeInputNames.reduce(async (prev, typeId) => {
       const [prevOk, result] = await prev;
       if (!prevOk) {
         return [prevOk, result];
       }
 
-      const { id: typeId } = await db.type.findByName(name, 'asset');
-      const quantity = recipe.inputs[name] * runs;
+      const quantity = recipeInputs[typeId] * runs;
 
-      const a = await db.asset.findOne(
-        {
-          where: {
-            gameAccountId,
-            locationId: facility.locationId,
-            typeId,
-            quantity: {
-              [Op.gte]: quantity,
-            },
+      const a = await db.asset.findOne({
+        where: {
+          gameAccountId,
+          locationId: facility.locationId,
+          typeId,
+          quantity: {
+            [Op.gte]: quantity,
           },
         },
-        {
-          transaction: t,
-          lock: t.LOCK.UPDATE,
-        }
-      );
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
 
       if (a === null) {
         return [
@@ -140,7 +133,7 @@ module.exports = {
       return out;
     }
 
-    await Promise.all(out.map(instance => instance.save()));
+    await Promise.all(out.map(instance => instance.save({ transaction: t })));
 
     return {
       duration: recipe.duration * runs,

@@ -33,16 +33,14 @@ module.exports = (sequelize, DataTypes) => {
     assetInstanceId,
     transaction
   ) {
-    return model.findOne(
-      {
+    return model.findOne({
+      where: {
         gameAccountId,
         assetInstanceId,
       },
-      {
-        transaction,
-        lock: transaction.LOCK.UPDATE,
-      }
-    );
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
   };
 
   model.findOrCreateLocked = async function findOrCreateLocked(

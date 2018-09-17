@@ -1,30 +1,35 @@
 import db from '../models';
 
 export default async function(t) {
+  const ironId = (await db.type.findByName('iron', 'material', t)).id;
+  const toolsId = (await db.type.findByName('tools', 'material', t)).id;
+  const mineId = (await db.type.findByName('mine', 'structure', t)).id;
+  const accountId = (await db.type.findByName('account', 'facility', t)).id;
+
   const staticRecipes = [
     {
       identityKey: 'tools',
       dependencies: [],
-      consumables: [(await db.type.findByName('iron', 'asset', t)).id],
-      outputs: [(await db.type.findByName('tools', 'asset', t)).id],
+      consumables: [ironId],
+      outputs: [toolsId],
+      duration: 2,
       details: {
-        inputs: { iron: 10 },
-        outputs: { tools: 1 },
-        duration: 2,
+        inputs: { [ironId]: 10 },
+        outputs: { [toolsId]: 1 },
       },
-      facilityTypeId: (await db.type.findByName('account', 'facility', t)).id,
+      facilityTypeId: accountId,
     },
     {
-      identityKey: 'factory',
+      identityKey: 'mine',
       dependencies: [],
-      consumables: [(await db.type.findByName('tools', 'asset', t)).id],
-      outputs: [(await db.type.findByName('iron', 'asset', t)).id],
+      consumables: [toolsId],
+      outputs: [mineId],
+      duration: 120,
       details: {
-        inputs: { tools: 10 },
-        outputs: { factory: 1 },
-        duration: 120,
+        inputs: { [toolsId]: 10 },
+        outputs: { [mineId]: 1 },
       },
-      facilityTypeId: (await db.type.findByName('account', 'facility', t)).id,
+      facilityTypeId: accountId,
     },
   ];
 

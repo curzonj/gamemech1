@@ -6,7 +6,7 @@ const getDragon = gqlAuth(async req => {
   const { details } = await db.lootTable.selectFromTable('dragons');
   const typeName =
     details.list[Math.floor(Math.random() * details.list.length)];
-  const { id: typeId } = await db.type.findByName(typeName, 'asset');
+  const { id: typeId } = await db.type.findByName(typeName, 'dragons');
 
   const asset = await addAsset(
     req.user.id,

@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       facilityTypeId: {
         type: DataTypes.BIGINT,
       },
+      duration: {
+        type: DataTypes.INTEGER,
+      },
       dependencies: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
       },

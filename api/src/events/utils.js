@@ -140,19 +140,15 @@ export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
       t
     );
 
-    const last = await db.timer.findOne(
-      {
-        where: {
-          gameAccountId,
-          assetInstanceId,
-          nextId: null,
-        },
+    const last = await db.timer.findOne({
+      where: {
+        gameAccountId,
+        assetInstanceId,
+        nextId: null,
       },
-      {
-        transaction: t,
-        lock: t.LOCK.UPDATE,
-      }
-    );
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
 
     const job = await db.timer.create(
       {

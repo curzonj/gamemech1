@@ -1,7 +1,7 @@
 import db from '../models';
 
 export default async function(t) {
-  const typeGroupId = await db.typeGroup.findIdByName('asset', t);
+  const typeGroupId = await db.typeGroup.findIdByName('dragons', t);
   const colors = [
     'blue', // 0.390547596148628
     'yellow', // 0.259085610126259
