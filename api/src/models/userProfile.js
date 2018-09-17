@@ -2,11 +2,18 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'userProfile',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       gameAccountId: {
         type: DataTypes.INTEGER,
+        unique: true,
       },
       discordId: {
         type: DataTypes.STRING,
+        unique: true,
       },
       discordDetails: {
         type: DataTypes.JSONB,

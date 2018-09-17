@@ -4,11 +4,18 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'type',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       name: {
         type: DataTypes.STRING,
+        unique: 'byTypeGroup',
       },
       typeGroupId: {
         type: DataTypes.INTEGER,
+        unique: 'byTypeGroup',
       },
       details: {
         type: DataTypes.JSONB,

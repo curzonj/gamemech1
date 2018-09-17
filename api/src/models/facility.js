@@ -4,14 +4,19 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'facility',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       typeId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
       },
       gameAccountId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
       },
       assetInstanceId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
       },
       details: {
         type: DataTypes.JSONB,

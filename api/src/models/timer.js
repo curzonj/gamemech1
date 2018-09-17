@@ -4,6 +4,11 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'timer',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       gameAccountId: {
         type: DataTypes.INTEGER,
       },

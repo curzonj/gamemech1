@@ -3,8 +3,7 @@
 
 - model: location
   rows:
-    - name: sector0
-      id: 0
+    - name: everywhere
 - model: typeGroup
   rows:
     - name: asset

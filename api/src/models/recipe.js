@@ -2,11 +2,23 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'recipe',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       identityKey: {
         type: DataTypes.STRING,
+        unique: true,
       },
       facilityTypeId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
+      },
+      inputs: {
+        type: DataTypes.ARRAY(DataTypes.BIGINT),
+      },
+      outputs: {
+        type: DataTypes.ARRAY(DataTypes.BIGINT),
       },
       details: {
         type: DataTypes.JSONB,

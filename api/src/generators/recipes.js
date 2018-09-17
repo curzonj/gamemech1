@@ -4,6 +4,8 @@ export default async function(t) {
   const staticRecipes = [
     {
       identityKey: 'tools',
+      inputs: [(await db.type.findByName('iron', 'asset', t)).id],
+      outputs: [(await db.type.findByName('tools', 'asset', t)).id],
       details: {
         inputs: { iron: 10 },
         outputs: { tools: 1 },
@@ -13,6 +15,8 @@ export default async function(t) {
     },
     {
       identityKey: 'factory',
+      inputs: [(await db.type.findByName('tools', 'asset', t)).id],
+      outputs: [(await db.type.findByName('iron', 'asset', t)).id],
       details: {
         inputs: { tools: 10 },
         outputs: { factory: 1 },

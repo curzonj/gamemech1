@@ -5,15 +5,18 @@ module.exports = (sequelize, DataTypes) => {
     'asset',
     {
       typeId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         primaryKey: true,
       },
+      typeGroupId: {
+        type: DataTypes.BIGINT,
+      },
       locationId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         primaryKey: true,
       },
       gameAccountId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         primaryKey: true,
       },
       quantity: {
@@ -69,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
     opts.plain = true;
 
     return sequelize.query(
-      'INSERT INTO assets (game_account_id, location_id, type_id, quantity) VALUES (:gameAccountId, :locationId, :typeId, :quantity) ON CONFLICT (game_account_id, location_id, type_id) DO UPDATE SET quantity = assets.quantity + EXCLUDED.quantity RETURNING *',
+      'INSERT INTO assets (game_account_id, location_id, type_id, type_group_id, quantity) VALUES (:gameAccountId, :locationId, :typeId, :typeGroupId, :quantity) ON CONFLICT (game_account_id, location_id, type_id) DO UPDATE SET quantity = assets.quantity + EXCLUDED.quantity RETURNING *',
       opts
     );
   };

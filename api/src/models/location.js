@@ -7,8 +7,9 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         // We need to be explicit here so that we can insert a location
         // with a specific ID as we want to do with sector0
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,

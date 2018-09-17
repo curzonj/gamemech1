@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import * as auth from '../../authentication';
+import * as auth from '../../utils/authentication';
 import safe from '../../shared/try_catch';
 
 function graphql(q) {

@@ -14,11 +14,15 @@ export default async function addAsset(
     throw new TypeError(`Expected a number, got: ${quantity}`);
   }
 
+  const { typeGroupId } = await db.type.findById(typeId);
+  console.log(typeGroupId);
+
   const asset = await db.asset.upsertOnConflict(
     {
       gameAccountId,
       locationId,
       typeId,
+      typeGroupId,
       quantity,
     },
     {

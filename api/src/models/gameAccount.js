@@ -4,8 +4,13 @@ module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'gameAccount',
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       typeId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
       },
       details: {
         type: DataTypes.JSONB,

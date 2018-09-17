@@ -59,7 +59,7 @@ export default async function(transaction) {
       });
 
       if (!existing) {
-        await model.create(row, { transaction });
+        await model.bulkCreate([row], { transaction });
       } else if (details) {
         await existing.update({ details }, { transaction });
       }

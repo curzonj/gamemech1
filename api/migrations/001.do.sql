@@ -6,7 +6,7 @@ create table schemaless (
   updated_at timestamp with time zone
 );
 
-create index type_idx on schemaless (type);
+create index on schemaless (type);
 
 create table locations (
   id bigserial primary key,
@@ -26,6 +26,8 @@ create table types (
   details jsonb
 );
 
+create unique index name_on_type_group_id_idx on types (type_group_id, name);
+
 create table loot_tables (
   name text not null,
   threshold double precision not null,
@@ -34,8 +36,6 @@ create table loot_tables (
 
   primary key (name, threshold)
 );
-
-create unique index name_on_type_group_id_idx on types (type_group_id, name);
 
 create table game_accounts (
   id bigserial primary key,
@@ -60,17 +60,22 @@ create table user_profiles (
   updated_at timestamp with time zone
 );
 
-create index discord_id_idx on user_profiles (discord_id);
+create index on user_profiles (discord_id);
 
 create table assets (
   game_account_id bigint not null references game_accounts (id),
   location_id bigint not null references locations (id),
   type_id bigint not null references types (id),
 
+  -- this is denormalized and matches the type_id's group. It'll make queries a lot faster
+  type_group_id bigint not null references type_groups (id),
+
   quantity integer not null,
 
   primary key (game_account_id, location_id, type_id)
 );
+
+create index on assets (type_group_id, game_account_id, location_id);
 
 create table asset_instances (
   id bigserial primary key,
@@ -87,6 +92,8 @@ create table recipes  (
 
   -- used to facility generating recipes and updating them
   identity_key text unique not null,
+  inputs bigint[] not null,
+  outputs bigint[] not null,
 
   facility_type_id bigint references types (id),
 
@@ -118,7 +125,7 @@ create table timer_queues (
   primary key (game_account_id, facility_id)
 );
 
-create index timer_queue_blockage_idx on timer_queues (blocked_type_id, blocked_container_id, blocked_quantity) where blocked_type_id IS NOT NULL and blocked_quantity IS NOT NULL;
+create index on timer_queues (blocked_type_id, blocked_container_id, blocked_quantity) where blocked_type_id IS NOT NULL and blocked_quantity IS NOT NULL;
 
 create table timers (
   id bigserial primary key,
@@ -135,8 +142,8 @@ create table timers (
   details jsonb
 );
 
-create index trigger_at_idx on timers (trigger_at, retries) where trigger_at is not null;
-create index queue_next_id_idx on timers (game_account_id, facility_id, next_id) where next_id is not null;
+create index on timers (trigger_at, retries) where trigger_at is not null;
+create index on timers (game_account_id, facility_id, next_id) where next_id is not null;
 
 -- postgresql is unable to represent this as a constraint
 create unique index queue_list_head_idx on timers (game_account_id, facility_id) where list_head;
