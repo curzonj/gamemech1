@@ -1,6 +1,4 @@
 import addAsset from '../../utils/addAsset';
-import { createTimer } from '../utils';
-import safe from '../../shared/try_catch';
 
 import * as db from '../../models';
 
@@ -18,16 +16,12 @@ module.exports = {
       gameAccountId,
       assetInstanceId,
       triggerAt,
-      details: { processName, runs },
+      details: { recipeId, runs },
     },
     t
   ) {
     const facility = await db.assetInstance.findById(assetInstanceId);
-    const recipe = await db.recipe.findOne({
-      where: {
-        identityKey: processName,
-      },
-    });
+    const recipe = await db.recipe.findById(recipeId);
 
     const recipeOutputs = recipe.details.outputs;
     const recipeOutputNames = Object.keys(recipeOutputs);
@@ -40,7 +34,7 @@ module.exports = {
       const quantity = recipeOutputs[typeId] * runs;
 
       if (type.typeGroupId === structureGroupId) {
-        const asset = await db.assetInstance.create(
+        await db.assetInstance.create(
           {
             gameAccountId,
             locationId: facility.locationId,
@@ -48,19 +42,6 @@ module.exports = {
           },
           { transaction: t }
         );
-
-        if (safe(() => type.details.timerHandler)) {
-          await createTimer(
-            {
-              gameAccountId,
-              assetInstanceId: asset.id,
-              handler: type.details.timerHandler,
-              details: {},
-            },
-            t,
-            triggerAt
-          );
-        }
       } else {
         await addAsset(
           gameAccountId,
@@ -78,16 +59,12 @@ module.exports = {
     {
       gameAccountId,
       assetInstanceId,
-      details: { processName, runs },
+      details: { recipeId, runs },
     },
     t
   ) {
     const facility = await db.assetInstance.findById(assetInstanceId);
-    const recipe = await db.recipe.findOne({
-      where: {
-        identityKey: processName,
-      },
-    });
+    const recipe = await db.recipe.findById(recipeId);
     const recipeInputs = recipe.details.inputs;
     const recipeInputNames = Object.keys(recipeInputs);
 

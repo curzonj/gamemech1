@@ -7,10 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      identityKey: {
-        type: DataTypes.STRING,
-        unique: true,
-      },
       facilityTypeId: {
         type: DataTypes.BIGINT,
       },
@@ -39,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
     type Recipe {
       id: ID!
       facilityType: Type
+      dependencies: JSON,
+      consumables: JSON,
+      outputs: JSON,
       details: JSON
     }
 

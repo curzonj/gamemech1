@@ -127,6 +127,33 @@ export async function createTimer(values, t, now) {
   await prepareJobToRun(null, job, t, now);
 }
 
+export async function addTimerToQueue(queue, job, t) {
+  const { gameAccountId, assetInstanceId } = queue;
+
+  const last = await db.timer.findOne({
+    where: {
+      gameAccountId,
+      assetInstanceId,
+      nextId: null,
+    },
+    transaction: t,
+    lock: t.LOCK.UPDATE,
+  });
+
+  if (last) {
+    await last.update(
+      {
+        nextId: job.id,
+      },
+      {
+        transaction: t,
+      }
+    );
+  } else {
+    await prepareJobToRun(queue, job, t);
+  }
+}
+
 export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
   return sequelize.transaction(async t => {
     const facility = await db.assetInstance.findById(assetInstanceId, {
@@ -140,16 +167,6 @@ export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
       t
     );
 
-    const last = await db.timer.findOne({
-      where: {
-        gameAccountId,
-        assetInstanceId,
-        nextId: null,
-      },
-      transaction: t,
-      lock: t.LOCK.UPDATE,
-    });
-
     const job = await db.timer.create(
       {
         handler,
@@ -162,18 +179,7 @@ export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
       }
     );
 
-    if (last) {
-      await last.update(
-        {
-          nextId: job.id,
-        },
-        {
-          transaction: t,
-        }
-      );
-    } else {
-      await prepareJobToRun(queue, job, t);
-    }
+    await addTimerToQueue(queue, job, t);
 
     return job;
   });

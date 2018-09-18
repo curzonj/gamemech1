@@ -15,31 +15,6 @@ const maxFailedJobRetries = 5;
 const workerIntervalSeconds = 5;
 const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
-async function scheduleNextTimer(job, t) {
-  if (job.nextId === null) {
-    return;
-  }
-
-  // TODO eventually I want to support containerIds different than the location
-  // of the asset. Like having timers on ships and them being a container for
-  // tangible or intangible assets.
-  const facility = await db.assetInstance.findById(job.assetInstanceId);
-
-  const queue = await db.timerQueue.findOrCreateLocked(
-    job.gameAccountId,
-    job.assetInstanceId,
-    facility.locationId,
-    t
-  );
-
-  const next = await db.timer.findById(job.nextId, {
-    transaction: t,
-    lock: t.LOCK.UPDATE,
-  });
-
-  await utils.prepareJobToRun(queue, next, t, job.triggerAt);
-}
-
 function handleJobId(jobId) {
   // TODO this needs timeouts or one bad handler could block the entire
   // worker
@@ -57,24 +32,37 @@ function handleJobId(jobId) {
 
       await utils.invokeHandler('complete', job, t);
 
-      const duration = await utils.invokeHandler('reschedule', job, t);
-      if (duration) {
-        return job.update(
-          {
-            triggerAt: utils.nextAt(duration, job.triggerAt),
-          },
-          {
-            transaction: t,
-          }
+      if (job.nextId !== null || job.repeat) {
+        // TODO eventually I want to support containerIds different than the location
+        // of the asset. Like having timers on ships and them being a container for
+        // tangible or intangible assets.
+        const facility = await db.assetInstance.findById(job.assetInstanceId);
+
+        const queue = await db.timerQueue.findOrCreateLocked(
+          job.gameAccountId,
+          job.assetInstanceId,
+          facility.locationId,
+          t
         );
+
+        if (job.nextId !== null) {
+          const next = await db.timer.findById(job.nextId, {
+            transaction: t,
+            lock: t.LOCK.UPDATE,
+          });
+
+          await utils.prepareJobToRun(queue, next, t, job.triggerAt);
+        }
+
+        if (job.repeat) {
+          await job.update({ listHead: false, nextId: null });
+          await utils.addTimerToQueue(queue, job, t);
+        }
       }
 
-      return Promise.all([
-        scheduleNextTimer(job, t),
-        job.destroy({
-          transaction: t,
-        }),
-      ]);
+      if (!job.repeat) {
+        await job.destroy({ transaction: t });
+      }
     })
     .catch(err => {
       reportErr(err);

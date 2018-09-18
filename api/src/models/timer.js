@@ -60,7 +60,9 @@ module.exports = (sequelize, DataTypes) => {
   model.resolvers = {
     Query: {
       now: () => new Date(),
-      timer: ({ id }) => model.findById(id),
+      timer: gqlAuth((req, { id }) =>
+        model.findOne({ where: { id, gameAccountId: req.user.id } })
+      ),
       timers: gqlAuth(req =>
         model.findAll({
           where: { gameAccountId: req.user.id },

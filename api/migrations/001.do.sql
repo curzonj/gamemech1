@@ -90,9 +90,6 @@ create table asset_instances (
 create table recipes  (
   id bigserial primary key,
 
-  -- used to facilitate generating recipes and updating them
-  identity_key text unique not null,
-
   facility_type_id bigint references types (id),
   duration int not null,
 
@@ -126,6 +123,7 @@ create table timers (
   handler text not null,
   trigger_at timestamp with time zone,
   retries int not null default 0,
+  repeat boolean not null default false,
 
   asset_instance_id bigint not null references asset_instances (id),
   next_id bigint references timers (id),

@@ -1,0 +1,31 @@
+typeGroups: ['account', 'facility', 'material', 'structure']
+
+staticTypes:
+  - ['account', ['player', 'company']]
+  - ['facility', ['account']]
+  - ['material', ['basic 1', 'basic 2', 'advanced 1']]
+  - ['structure', ['converter A', 'converter B']]
+
+# TODO resources sites are the big thing that make multiple basic resources meaningful
+# like minecraft wood and stone
+# how do I include resource sites in manual actions?
+
+recipes:
+  - [[], { 'basic 1': 10 }, { 'converter A': 1 }, 3, 'account']
+  - [[], {}, { 'basic 1': 1 }, 120, 'converter A']
+  # TODO factorio burner mine except that it is going to need a resource site
+  - [[], { 'basic 2': 1 }, { 'basic 1': 10 }, 3, 'converter A']
+  - [
+      [],
+      { 'basic 1': 100, 'basic 2': 100 },
+      { 'converter B': 10 },
+      3,
+      'account',
+    ]
+  - [
+      [],
+      { 'basic 1': 10, 'basic 2': 10 },
+      { 'advanced 1': 10 },
+      3,
+      'converter B',
+    ]

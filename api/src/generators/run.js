@@ -1,15 +1,18 @@
 import * as db from '../models';
-import seeds from './seeds';
-import recipes from './recipes';
-import loot from './loot';
+import location from './locations';
+import types from './types';
+import { getHelper } from './utils';
 
 const { sequelize } = db;
 
 sequelize
   .transaction(async t => {
-    await seeds(t);
-    await recipes(t);
-    await loot(t);
+    const h = getHelper(t);
+
+    await h.truncate();
+
+    await location(h);
+    await types(h);
   })
   .catch(err => console.log(err, err.stack))
   .finally(() => sequelize.connectionManager.close());
