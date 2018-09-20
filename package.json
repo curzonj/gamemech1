@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "heroku-postbuild": "(cd api; ../bin/build.sh) && (cd client; ../bin/build.sh)",
-    "start": "node api/dist/server.js"
+    "start": "cd api; node dist/server.js"
   },
   "cacheDirectories": [
     "client/node_modules",
