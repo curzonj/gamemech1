@@ -4,7 +4,7 @@ import config from '../config';
 import * as db from '../models';
 import reportError from '../utils/reportError';
 
-const discordScopes = ['identify', 'email'];
+const discordScopes = ['identify'];
 
 function translateDiscordProfileToAccount(
   accessToken,
@@ -47,7 +47,7 @@ export default function(passport) {
       {
         clientID: config.get('DISCORD_OAUTH_CLIENT_ID'),
         clientSecret: config.get('DISCORD_OAUTH_CLIENT_SECRET'),
-        callbackURL: 'http://localhost:3001/auth/discord/callback',
+        callbackURL: config.get('DISCORD_CALLBACK_URL'),
         scope: discordScopes,
       },
       translateDiscordProfileToAccount
@@ -58,7 +58,7 @@ export default function(passport) {
     {
       clientID: config.get('DISCORD_OAUTH_CLIENT_ID'),
       clientSecret: config.get('DISCORD_OAUTH_CLIENT_SECRET'),
-      callbackURL: 'http://localhost:3000/auth/discord/callback',
+      callbackURL: config.get('DISCORD_CALLBACK_URL'),
       scope: discordScopes,
     },
     translateDiscordProfileToAccount

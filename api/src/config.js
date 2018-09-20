@@ -21,6 +21,7 @@ function requireValue(setting) {
 }
 
 requireValue('DATABASE_URL');
+requireValue('DISCORD_CALLBACK_URL');
 requireValue('DISCORD_OAUTH_CLIENT_ID');
 requireValue('DISCORD_OAUTH_CLIENT_SECRET');
 
