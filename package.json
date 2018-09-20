@@ -1,0 +1,23 @@
+{
+  "name": "gamemech",
+  "version": "1.0.0",
+  "scripts": {
+    "heroku-postbuild": "(cd api; ../bin/build.sh) && (cd client; ../bin/build.sh)",
+    "start": "node api/dist/server.js"
+  },
+  "cacheDirectories": [
+    "client/node_modules",
+    "api/node_modules"
+  ],
+  "keywords": [
+    "game"
+  ],
+  "author": "Jordan Curzon <curzonj@gmail.com>",
+  "license": "AGPL",
+  "engines": {
+    "node": "8.11.1",
+    "npm": "5.7.x"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

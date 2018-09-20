@@ -11,15 +11,19 @@ npm run migrate
 npm run seed
 ```
 
+# Discord Oauth
+
+https://discordapp.com/developers/applications/#top
+
 # Style Guide
 
 You'll find things that don't follow these guides, feel free to correct it.
 
-* [Google JSON Style Guide](https://google.github.io/styleguide/jsoncstyleguide.xml)
-* [Airbnb JS Style Guide](https://github.com/airbnb/javascript)
+- [Google JSON Style Guide](https://google.github.io/styleguide/jsoncstyleguide.xml)
+- [Airbnb JS Style Guide](https://github.com/airbnb/javascript)
 
 ## Highlights
 
-* CamelCase everything (js files incliuded), except postgresql db columns
-* Use semi-colons
-* Use single quotes
+- CamelCase everything (js files incliuded), except postgresql db columns
+- Use semi-colons
+- Use single quotes

@@ -11,6 +11,8 @@ import startSimulation from './events/processor';
 const app = express();
 const server = http.createServer(app);
 
+app.use(express.static('../client/build'));
+
 app.use(morgan('dev')); // log every request to the console
 app.use(cors());
 
