@@ -1,4 +1,5 @@
 import DataLoader from 'dataloader';
+import { Op } from 'sequelize';
 
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
@@ -46,10 +47,6 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   model.dataloader = function dataloader(req) {
-    const {
-      Sequelize: { Op },
-    } = model.db;
-
     if (!req.loaders) {
       req.loaders = {};
     }

@@ -24,11 +24,11 @@ module.exports = (sequelize, DataTypes) => {
       resultIds: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
       },
-      resultStyle: {
-        type: DataTypes.STRING,
-      },
       resultHandler: {
         type: DataTypes.STRING,
+      },
+      siteTypeId: {
+        type: DataTypes.BIGINT,
       },
       details: {
         type: DataTypes.JSONB,
@@ -46,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
       dependencyTypes: [Type]
       consumableTypes: [Type]
       resultTypes: [Type]
-      resultStyle: String
       resultHandler: String
       manual: Boolean
       duration: Int

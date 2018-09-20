@@ -1,17 +1,5 @@
-- some asset types are non-transferable
-
-- add support for details on site types
-- add support for details on site recipes
-- add support for variable result site recipes
-- add support for site visibility in graphql
-- add support for site requirements in recipes
-- add support for site visibility in recipe requirements
-
-Resource sites
-
-- sites have attributes that change over time
-- sites only are created when they are discovered which is an action that can be done manually or by structures
-- sites can disappear
-- sites can be publicly visible or privately visible
-- sites can be accessible to an "owner" or everybody
-- sites can be associated with an asset instance
+- some asset types should be non-transferable
+- add some way to "control" a site once there is a way to contest such control
+- add interaction between players and sites, exploring and competing for the sites
+- right now unlimited recipes can use a single site, sites should be limited resources in some fashion
+- currently if I want both the account and a factory to be able to build converters, I have to duplicate the recipe. I need either an a array of facility type IDs, or I need capability flags and tie the recipes to those.

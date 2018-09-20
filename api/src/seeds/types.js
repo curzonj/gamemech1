@@ -21,11 +21,12 @@ function buildHelper(t) {
     },
 
     types: {},
-    async type(name, typeGroup, id) {
+    async type(name, details, typeGroup, id) {
       await db.type.upsert(
         {
           id,
           name,
+          details,
           typeGroupId: get('typeGroups', typeGroup),
         },
         { transaction }
@@ -38,18 +39,18 @@ function buildHelper(t) {
       dependenciesT,
       inputsT,
       outputsT,
-      [duration, facilityType, manual = false]
+      [duration, facilityType, siteTypeName = null, manual = false],
+      details = {}
     ) {
+      const dependencyIds = dependenciesT.map(k => get('types', k));
       const inputs = namesToTypeIds(inputsT);
       const consumableIds = Object.keys(inputs);
-      const dependencyIds = dependenciesT.map(k => get('types', k));
-      dependencyIds.forEach(id => {
-        inputs[id] = 0;
-      });
       const outputs = namesToTypeIds(outputsT);
       const resultIds = Object.keys(outputs);
+      const siteTypeId = siteTypeName ? get('types', siteTypeName) : null;
 
-      const details = { inputs, outputs };
+      details.inputs = inputs;
+      details.outputs = outputs;
 
       await db.recipe.upsert(
         {
@@ -60,7 +61,7 @@ function buildHelper(t) {
           details,
           duration,
           manual,
-          resultStyle: 'fixed',
+          siteTypeId,
           resultHandler: 'crafting',
           facilityTypeId: get('types', facilityType),
         },
@@ -73,17 +74,15 @@ function buildHelper(t) {
       dependenciesT,
       inputsT,
       outputsT,
-      [duration, facilityType, manual = false]
+      [duration, facilityType, manual = false],
+      details = {}
     ) {
+      const dependencyIds = dependenciesT.map(k => get('types', k));
       const inputs = namesToTypeIds(inputsT);
       const consumableIds = Object.keys(inputs);
-      const dependencyIds = dependenciesT.map(k => get('types', k));
-      dependencyIds.forEach(id => {
-        inputs[id] = 0;
-      });
       const resultIds = outputsT.map(k => get('types', k));
 
-      const details = { inputs };
+      details.inputs = inputs;
 
       await db.recipe.upsert(
         {
@@ -94,7 +93,6 @@ function buildHelper(t) {
           details,
           duration,
           manual,
-          resultStyle: outputsT.length > 1 ? 'variable' : 'fixed',
           resultHandler: 'sites',
           facilityTypeId: get('types', facilityType),
         },
@@ -114,7 +112,7 @@ function buildHelper(t) {
 
   function namesToTypeIds(map) {
     return Object.keys(map).reduce((p, n) => {
-      p[get('types', n)] = data[n];
+      p[get('types', n)] = map[n];
       return p;
     }, {});
   }
@@ -127,9 +125,13 @@ export default async function(t) {
 
   await each(data.typeGroups, h.typeGroup);
 
-  await each(data.staticTypes, async ([group, list], groupIdx) => {
-    await each(list, (type, idx) =>
-      h.type(type, group, groupIdx * 100 + idx + 1)
+  await each(data.staticTypes, async ([group, value], groupIdx) => {
+    const list = Array.isArray(value)
+      ? value.map(v => [v, {}])
+      : Object.keys(value).map(k => [k, value[k]]);
+
+    await each(list, ([type, details], idx) =>
+      h.type(type, details, group, groupIdx * 100 + idx + 1)
     );
   });
 

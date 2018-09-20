@@ -10,13 +10,14 @@
     "test": "mocha --require @babel/register \"test/**/*.js\"",
     "lint": "eslint --fix src test; true",
     "db:migrate": "node migrate.js",
-    "db:seed": "babel-node src/generators/run.js",
+    "db:seed": "babel-node src/seeds/run.js",
     "db:reset": "npm run db:migrate 0 && npm run db:migrate && npm run db:seed"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/sequelize": "^4.27.25",
     "cors": "^2.8.4",
     "dataloader": "^1.4.0",
     "express": "^4.16.3",

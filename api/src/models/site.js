@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import gqlAuth from '../utils/gqlAuth';
 
 module.exports = (sequelize, DataTypes) => {
@@ -15,11 +16,8 @@ module.exports = (sequelize, DataTypes) => {
       locationId: {
         type: DataTypes.BIGINT,
       },
-      assetInstanceId: {
+      visibleById: {
         type: DataTypes.BIGINT,
-      },
-      public: {
-        type: DataTypes.BOOLEAN,
       },
       details: {
         type: DataTypes.JSONB,
@@ -35,12 +33,11 @@ module.exports = (sequelize, DataTypes) => {
         id: ID!
         type: Type
         location: Location
-        public: Boolean
         details: JSON
       }
 
       extend type Query {
-        sites: [Site]
+        sites(locationId: ID!): [Site]
       }
     `;
 
@@ -54,7 +51,14 @@ module.exports = (sequelize, DataTypes) => {
       ),
     },
     Query: {
-      sites: gqlAuth(req => model.findAll()),
+      sites: gqlAuth((req, { locationId }) =>
+        model.findAll({
+          where: {
+            locationId,
+            [Op.or]: [{ visibleById: null }, { visibleById: req.user.id }],
+          },
+        })
+      ),
     },
   };
 

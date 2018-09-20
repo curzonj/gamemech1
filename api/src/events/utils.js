@@ -1,12 +1,8 @@
+import { Op } from 'sequelize';
 import * as gameHandlers from './handlers';
 import * as db from '../models';
 import safe from '../shared/try_catch';
 import { each } from '../shared/async';
-
-const {
-  sequelize,
-  Sequelize: { Op },
-} = db;
 
 export function nextAt(duration, from = new Date()) {
   const next = new Date(from);
@@ -40,7 +36,7 @@ export async function unblock(
   // Check the queues serially because most likely the first queue in the list
   // will consume enough resources that the rest will remain blocked
   await each(blocked, async ({ gameAccountId, assetInstanceId }) =>
-    sequelize.transaction(async transaction => {
+    db.sequelize.transaction(async transaction => {
       const queue = await db.timerQueue.findLocked(
         gameAccountId,
         assetInstanceId,
@@ -86,7 +82,11 @@ export async function prepareJobToRun(queue, job, t, now = new Date()) {
     listHead: true,
   };
 
-  const { duration, reqs } = await invokeHandler('prepare', job, t);
+  const { skip, duration, reqs } = await invokeHandler('prepare', job, t);
+
+  if (skip) {
+    return false;
+  }
 
   if (duration) {
     // We set the value because we don't know if it's an object

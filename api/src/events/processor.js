@@ -1,24 +1,37 @@
 /* eslint consistent-return: 0 */
 
 import sleep from 'sleep-promise';
+import { Op } from 'sequelize';
 import config from '../config';
 import * as db from '../models';
 import * as utils from './utils';
 import reportErr from '../utils/reportError';
 
-const {
-  sequelize,
-  Sequelize: { Op },
-} = db;
-
 const maxFailedJobRetries = 5;
 const workerIntervalSeconds = 5;
 const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
+async function startNextJob(queue, job, t, now) {
+  if (job.nextId === null) {
+    return;
+  }
+
+  const next = await db.timer.findById(job.nextId, {
+    transaction: t,
+    lock: t.LOCK.UPDATE,
+  });
+
+  const ok = await utils.prepareJobToRun(queue, next, t, now);
+  if (!ok) {
+    await startNextJob(queue, next, t, now);
+    await next.destroy();
+  }
+}
+
 function handleJobId(jobId) {
   // TODO this needs timeouts or one bad handler could block the entire
   // worker
-  return sequelize
+  return db.sequelize
     .transaction(async t => {
       const job = await db.timer.findById(jobId, {
         skipLocked: true,
@@ -51,14 +64,7 @@ function handleJobId(jobId) {
           t
         );
 
-        if (job.nextId !== null) {
-          const next = await db.timer.findById(job.nextId, {
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-          });
-
-          await utils.prepareJobToRun(queue, next, t, job.triggerAt);
-        }
+        await startNextJob(queue, job, t, job.triggerAt);
 
         if (job.repeat) {
           await job.update(

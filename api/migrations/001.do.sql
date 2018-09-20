@@ -19,12 +19,15 @@ create table type_groups (
 );
 
 create table types (
-  id bigint primary key,
+  id bigserial primary key,
   type_group_id bigint not null references type_groups (id),
 
   name text not null,
   details jsonb
 );
+
+-- user generated types start at 10 million
+ALTER SEQUENCE types_id_seq RESTART WITH 10000000;
 
 create unique index name_on_type_group_id_idx on types (type_group_id, name);
 
@@ -127,24 +130,24 @@ create table sites (
 
   type_id bigint not null references types (id),
   location_id bigint not null references locations (id),
-  asset_instance_id bigint references asset_instances (id),
-  public boolean not null default false,
+
+  -- TODO This is a short term thing. It will need to be a mapping table
+  -- multiple people can find a site if they are looking but that won't
+  -- make it public. Maybe nothing is public, just a difficulty level
+  -- to find it and whether you have already found it or not
+  visible_by_id bigint references game_accounts (id),
 
   details jsonb
 );
 
-create index on sites (location_id, public, type_id);
-
-create table site_visibility (
-  site_id bigint not null references sites (id),
-  game_account_id bigint not null references game_accounts (id)
-);
+create index on sites (type_id);
+create index on sites (location_id, visible_by_id, type_id);
 
 create table recipes  (
   id bigint primary key,
 
   site_type_id bigint references types (id),
-  facility_type_id bigint references types (id),
+  facility_type_id bigint not null references types (id),
   duration int not null,
 
   dependency_ids bigint[] not null,
@@ -152,7 +155,6 @@ create table recipes  (
   result_ids bigint[] not null,
 
   manual boolean not null default false,
-  result_style text not null, -- fixed, variable
   result_handler text not null,
 
   details jsonb

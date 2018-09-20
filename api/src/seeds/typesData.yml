@@ -8,11 +8,11 @@ staticTypes:
   - ['facility', ['account']]
   - ['material', ['basic 1', 'basic 2', 'advanced 1']]
   - ['structure', ['converter A', 'converter B']]
-  - ['site', ['basic 2 resource']]
+  - ['site', { 'basic 2 resource': {} }]
 
 recipes:
-  - [[], {}, { 'basic 1': 10 }, [5, 'account', true]]
-  - [[], {}, { 'basic 2': 10 }, [10, 'account', true]]
+  - [[], {}, { 'basic 1': 10 }, [5, 'account', null, true]]
+  - [[], {}, { 'basic 2': 10 }, [10, 'account', null, true]]
   - [[], { 'basic 1': 100 }, { 'converter A': 1 }, [120, 'account']]
   - [[], {}, { 'basic 1': 1 }, [20, 'converter A']]
   - [[], { 'basic 2': 1 }, { 'basic 1': 10 }, [10, 'converter A']]
@@ -28,6 +28,7 @@ recipes:
       { 'advanced 1': 1 },
       [10, 'converter B'],
     ]
+  - [[], {}, { 'basic 2': 1 }, [20, 'converter A', 'basic 2 resource']]
 
 sites:
   - [[], { 'basic 1': 10 }, ['basic 2 resource'], [120, 'account', true]]

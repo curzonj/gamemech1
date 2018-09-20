@@ -37,7 +37,9 @@ fs.readdirSync(__dirname)
 
 db.forEachModel = function forEachModel(fn) {
   Object.keys(db).forEach(modelName => {
-    fn(db[modelName]);
+    if (db[modelName].hasOwnProperty('name')) {
+      fn(db[modelName]);
+    }
   });
 };
 
