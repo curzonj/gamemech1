@@ -1,6 +1,7 @@
 import * as gameHandlers from './handlers';
 import * as db from '../models';
 import safe from '../shared/try_catch';
+import { each } from '../shared/async';
 
 const {
   sequelize,
@@ -38,14 +39,12 @@ export async function unblock(
 
   // Check the queues serially because most likely the first queue in the list
   // will consume enough resources that the rest will remain blocked
-  return blocked.reduce(async (prev, { gameAccountId, assetInstanceId }) => {
-    await prev;
-
-    await sequelize.transaction(async t => {
+  await each(blocked, async ({ gameAccountId, assetInstanceId }) =>
+    sequelize.transaction(async transaction => {
       const queue = await db.timerQueue.findLocked(
         gameAccountId,
         assetInstanceId,
-        t
+        transaction
       );
 
       const next = await db.timer.findOne(
@@ -57,8 +56,8 @@ export async function unblock(
           },
         },
         {
-          transaction: t,
-          lock: t.LOCK.UPDATE,
+          transaction,
+          lock: transaction.LOCK.UPDATE,
         }
       );
 
@@ -66,29 +65,20 @@ export async function unblock(
         return;
       }
 
-      const { duration } = await invokeHandler('prepare', next, t);
+      const { duration } = await invokeHandler('prepare', next, transaction);
       if (duration) {
         await next.update(
-          {
-            triggerAt: nextAt(duration, now),
-          },
-          {
-            transaction: t,
-          }
+          { triggerAt: nextAt(duration, now) },
+          { transaction }
         );
 
         await queue.update(
-          {
-            blockedTypeId: null,
-            blockedQuantity: null,
-          },
-          {
-            transaction: t,
-          }
+          { blockedTypeId: null, blockedQuantity: null },
+          { transaction }
         );
       }
-    });
-  }, Promise.resolve());
+    })
+  );
 }
 
 export async function prepareJobToRun(queue, job, t, now = new Date()) {
@@ -107,6 +97,8 @@ export async function prepareJobToRun(queue, job, t, now = new Date()) {
         `invalid prepare handler without queue: ${JSON.stringify(job)}`
       );
     }
+
+    values.triggerAt = null;
 
     await queue.update(
       {
@@ -127,11 +119,24 @@ export async function createTimer(values, t, now) {
   await prepareJobToRun(null, job, t, now);
 }
 
-export async function addTimerToQueue(queue, job, t) {
+export class QueuingNotAllowed extends Error {
+  constructor(message = 'This job cannot be queued, please wait', ...params) {
+    // Pass remaining arguments (including vendor specific ones) to parent constructor
+    super(message, ...params);
+
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, QueuingNotAllowed);
+    }
+  }
+}
+
+export async function scheduleTimer(queue, job, disallowQueuing, t) {
   const { gameAccountId, assetInstanceId } = queue;
 
   const last = await db.timer.findOne({
     where: {
+      id: { [Op.ne]: job.id },
       gameAccountId,
       assetInstanceId,
       nextId: null,
@@ -141,6 +146,10 @@ export async function addTimerToQueue(queue, job, t) {
   });
 
   if (last) {
+    if (disallowQueuing) {
+      throw new QueuingNotAllowed();
+    }
+
     await last.update(
       {
         nextId: job.id,
@@ -152,35 +161,4 @@ export async function addTimerToQueue(queue, job, t) {
   } else {
     await prepareJobToRun(queue, job, t);
   }
-}
-
-export function schedule({ handler, gameAccountId, assetInstanceId, details }) {
-  return sequelize.transaction(async t => {
-    const facility = await db.assetInstance.findById(assetInstanceId, {
-      transaction: t,
-    });
-
-    const queue = await db.timerQueue.findOrCreateLocked(
-      gameAccountId,
-      assetInstanceId,
-      facility.locationId,
-      t
-    );
-
-    const job = await db.timer.create(
-      {
-        handler,
-        gameAccountId,
-        assetInstanceId,
-        details,
-      },
-      {
-        transaction: t,
-      }
-    );
-
-    await addTimerToQueue(queue, job, t);
-
-    return job;
-  });
 }

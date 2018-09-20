@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       type AssetInstance {
         id: ID!
         type: Type
-        timerBlockedType: Type,
-        timerBlockedQuantity: Int,
-        timers: [Timer],
+        timerBlockedType: Type
+        timerBlockedQuantity: Int
+        timers: [Timer]
         details: JSON
       }
 

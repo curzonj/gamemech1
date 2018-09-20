@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         type: DataTypes.BIGINT,
         primaryKey: true,
-        autoIncrement: true,
       },
       facilityTypeId: {
         type: DataTypes.BIGINT,
@@ -13,14 +12,23 @@ module.exports = (sequelize, DataTypes) => {
       duration: {
         type: DataTypes.INTEGER,
       },
-      dependencies: {
+      manual: {
+        type: DataTypes.BOOLEAN,
+      },
+      dependencyIds: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
       },
-      consumables: {
+      consumableIds: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
       },
-      outputs: {
+      resultIds: {
         type: DataTypes.ARRAY(DataTypes.BIGINT),
+      },
+      resultStyle: {
+        type: DataTypes.STRING,
+      },
+      resultHandler: {
+        type: DataTypes.STRING,
       },
       details: {
         type: DataTypes.JSONB,
@@ -35,9 +43,13 @@ module.exports = (sequelize, DataTypes) => {
     type Recipe {
       id: ID!
       facilityType: Type
-      dependencies: JSON,
-      consumables: JSON,
-      outputs: JSON,
+      dependencyTypes: [Type]
+      consumableTypes: [Type]
+      resultTypes: [Type]
+      resultStyle: String
+      resultHandler: String
+      manual: Boolean
+      duration: Int
       details: JSON
     }
 
@@ -46,8 +58,23 @@ module.exports = (sequelize, DataTypes) => {
       recipes: [Recipe]
     }
   `;
-
   model.resolvers = {
+    Recipe: {
+      facilityType: (root, args, req) =>
+        model.db.type.dataloader(req).load(root.facilityTypeId),
+      dependencyTypes: (root, args, req) =>
+        Promise.all(
+          root.dependencyIds.map(n => model.db.type.dataloader(req).load(n))
+        ),
+      consumableTypes: (root, args, req) =>
+        Promise.all(
+          root.consumableIds.map(n => model.db.type.dataloader(req).load(n))
+        ),
+      resultTypes: (root, args, req) =>
+        Promise.all(
+          root.resultIds.map(n => model.db.type.dataloader(req).load(n))
+        ),
+    },
     Query: {
       recipe: (root, args) => model.findById(args.id),
       recipes: () => model.findAll(),

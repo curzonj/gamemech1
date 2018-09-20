@@ -1,21 +1,32 @@
 import gqlAuth from '../utils/gqlAuth';
 import * as db from '../models';
 import { prepareJobToRun } from '../events/utils';
+import { each } from '../shared/async';
 
 const { sequelize } = db;
 
 exports.typeDefs = `
   extend type Mutation {
-    deleteTimer(id: ID!)
-    clearTimerQueue(assetInstanceId: ID!)
+    deleteTimer(id: ID!): ID
+    clearTimerQueue(assetInstanceId: ID!): [ID]
   }
 `;
 
 exports.resolvers = {
   Mutation: {
     clearTimerQueue: gqlAuth(async (req, { assetInstanceId }) =>
-      db.timer.destroy({
-        where: { gameAccountId: req.user.id, assetInstanceId },
+      sequelize.transaction(async transaction => {
+        const lock = transaction.LOCK.UPDATE;
+
+        const list = await db.timer.findAll({
+          where: { gameAccountId: req.user.id, assetInstanceId },
+          transaction,
+          lock,
+        });
+
+        await each(list, x => x.destroy({ transaction }));
+
+        return list.map(x => x.id);
       })
     ),
     deleteTimer: gqlAuth(async (req, { id }) => {
@@ -65,6 +76,8 @@ exports.resolvers = {
 
         await job.destroy({ transaction });
       });
+
+      return id;
     }),
   },
 };

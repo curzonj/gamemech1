@@ -24,6 +24,9 @@ module.exports = (sequelize, DataTypes) => {
       listHead: {
         type: DataTypes.BOOLEAN,
       },
+      repeat: {
+        type: DataTypes.BOOLEAN,
+      },
       nextId: {
         type: DataTypes.INTEGER,
       },

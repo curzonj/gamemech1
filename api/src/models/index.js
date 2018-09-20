@@ -6,9 +6,7 @@ import config from '../config';
 
 const basename = path.basename(__filename);
 
-const db = {
-  models: [],
-};
+const db = {};
 
 const sequelize = new Sequelize(config.get('DATABASE_URL'), {
   // NOTE issues with the pool cause the "Cannot read property 'query' of undefined" error
@@ -35,13 +33,18 @@ fs.readdirSync(__dirname)
   .forEach(file => {
     const model = sequelize.import(path.join(__dirname, file));
     db[model.name] = model;
-    db.models.push(model);
   });
 
-Object.keys(db).forEach(modelName => {
-  db[modelName].db = db;
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
+db.forEachModel = function forEachModel(fn) {
+  Object.keys(db).forEach(modelName => {
+    fn(db[modelName]);
+  });
+};
+
+db.forEachModel(m => {
+  m.db = db;
+  if (m.associate) {
+    m.associate(db);
   }
 });
 

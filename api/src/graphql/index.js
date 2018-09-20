@@ -45,7 +45,7 @@ fs.readdirSync(__dirname)
     }
   });
 
-db.models.forEach(m => {
+db.forEachModel(m => {
   if (m.typeDefs && m.resolvers) {
     typeDefs.push(m.typeDefs);
     resolvers.push(m.resolvers);

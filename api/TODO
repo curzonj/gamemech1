@@ -1,0 +1,17 @@
+- some asset types are non-transferable
+
+- add support for details on site types
+- add support for details on site recipes
+- add support for variable result site recipes
+- add support for site visibility in graphql
+- add support for site requirements in recipes
+- add support for site visibility in recipe requirements
+
+Resource sites
+
+- sites have attributes that change over time
+- sites only are created when they are discovered which is an action that can be done manually or by structures
+- sites can disappear
+- sites can be publicly visible or privately visible
+- sites can be accessible to an "owner" or everybody
+- sites can be associated with an asset instance

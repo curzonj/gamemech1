@@ -30,7 +30,13 @@ function handleJobId(jobId) {
         return;
       }
 
-      await utils.invokeHandler('complete', job, t);
+      const jobResult = await utils.invokeHandler('complete', job, t);
+
+      if (jobResult && jobResult.continueIn) {
+        return job.update({
+          triggerAt: utils.nextAt(jobResult.continueIn, job.triggerAt),
+        });
+      }
 
       if (job.nextId !== null || job.repeat) {
         // TODO eventually I want to support containerIds different than the location
@@ -55,8 +61,11 @@ function handleJobId(jobId) {
         }
 
         if (job.repeat) {
-          await job.update({ listHead: false, nextId: null });
-          await utils.addTimerToQueue(queue, job, t);
+          await job.update(
+            { listHead: false, nextId: null },
+            { transaction: t }
+          );
+          await utils.scheduleTimer(queue, job, false, t);
         }
       }
 

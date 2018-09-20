@@ -14,12 +14,12 @@ create table locations (
 );
 
 create table type_groups (
-  id bigserial primary key,
+  id bigint primary key,
   name text unique not null
 );
 
 create table types (
-  id bigserial primary key,
+  id bigint primary key,
   type_group_id bigint not null references type_groups (id),
 
   name text not null,
@@ -87,22 +87,6 @@ create table asset_instances (
   details jsonb
 );
 
-create table recipes  (
-  id bigserial primary key,
-
-  facility_type_id bigint references types (id),
-  duration int not null,
-
-  dependencies bigint[] not null,
-  consumables bigint[] not null,
-  outputs bigint[] not null,
-
-  details jsonb
-);
-
--- definition: a stock or supply of money, materials, staff, and other assets that can be drawn on by a person or organization in order to function effectively.
--- create table resources
-
 create table timer_queues (
   game_account_id bigint not null references game_accounts (id),
   asset_instance_id bigint not null references asset_instances (id),
@@ -136,4 +120,40 @@ create index on timers (trigger_at, retries) where trigger_at is not null;
 create index on timers (game_account_id, asset_instance_id, next_id) where next_id is not null;
 
 -- postgresql is unable to represent this as a constraint
-create unique index queue_list_head_idx on timers (game_account_id, asset_instance_id) where list_head;
+create unique index on timers (game_account_id, asset_instance_id) where list_head;
+
+create table sites (
+  id bigserial primary key,
+
+  type_id bigint not null references types (id),
+  location_id bigint not null references locations (id),
+  asset_instance_id bigint references asset_instances (id),
+  public boolean not null default false,
+
+  details jsonb
+);
+
+create index on sites (location_id, public, type_id);
+
+create table site_visibility (
+  site_id bigint not null references sites (id),
+  game_account_id bigint not null references game_accounts (id)
+);
+
+create table recipes  (
+  id bigint primary key,
+
+  site_type_id bigint references types (id),
+  facility_type_id bigint references types (id),
+  duration int not null,
+
+  dependency_ids bigint[] not null,
+  consumable_ids bigint[] not null,
+  result_ids bigint[] not null,
+
+  manual boolean not null default false,
+  result_style text not null, -- fixed, variable
+  result_handler text not null,
+
+  details jsonb
+);

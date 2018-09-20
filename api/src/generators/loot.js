@@ -1,7 +1,8 @@
 import db from '../models';
+import { each } from '../shared/async';
 
-export default async function(t) {
-  const typeGroupId = await db.typeGroup.findIdByName('dragons', t);
+export default async function(transaction) {
+  const typeGroupId = await db.typeGroup.findIdByName('dragons', transaction);
   const colors = [
     'blue', // 0.390547596148628
     'yellow', // 0.259085610126259
@@ -45,26 +46,11 @@ export default async function(t) {
     });
   });
 
-  await db.lootTable.destroy(
-    {
-      where: {
-        name: 'dragons',
-      },
-    },
-    {
-      transaction: t,
-    }
+  await db.lootTable.destroy({ where: { name: 'dragons' } }, { transaction });
+
+  await each(loot, async values =>
+    db.lootTable.create(values, { transaction })
   );
 
-  await loot.reduce(async (prev, values) => {
-    await prev;
-
-    await db.lootTable.create(values, { transaction: t });
-  }, Promise.resolve());
-
-  await types.reduce(async (prev, values) => {
-    await prev;
-
-    await db.type.upsert(values, { transaction: t });
-  }, Promise.resolve());
+  await each(types, async values => db.type.upsert(values, { transaction }));
 }
