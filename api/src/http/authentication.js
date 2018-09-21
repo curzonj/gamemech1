@@ -1,26 +1,28 @@
 import passport from 'passport';
 import session from 'express-session';
 import jwt from 'jsonwebtoken';
-import fileStoreFn from 'session-file-store';
+import connectStoreFn from 'connect-session-sequelize';
 import passportConfig from './passport';
 import config from '../config';
 import reportError from '../utils/reportError';
+import * as db from '../models';
 
-const FileStore = fileStoreFn(session);
+const SessionStoreClass = connectStoreFn(session.Store);
+const sessionStore = new SessionStoreClass({ db: db.sequelize });
+sessionStore.sync();
 
 passportConfig(passport);
 
 export default function(app) {
   app.use(
     session({
-      store: new FileStore({
-        path: './.sessions',
-      }),
+      store: sessionStore,
       secret: config.get('SESSION_SECRET'),
       cookie: {},
       resave: false,
       secure: config.get('NODE_ENV') === 'production',
       saveUninitialized: false,
+      proxy: true,
     })
   );
 
