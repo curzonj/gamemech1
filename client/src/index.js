@@ -1,12 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './components/app/App';
+import App from './components/App';
 import { unregister } from './utils/registerServiceWorker';
-import { handleOAuthCallback } from './utils/authentication';
+import * as auth from './utils/authentication';
 
-handleOAuthCallback().then(() => {
-  ReactDOM.render(<App />, document.getElementById('root'));
+auth.handleOAuthCallback().then(() => {
+  if (auth.isAuthenticated()) {
+    ReactDOM.render(<App />, document.getElementById('root'));
+  } else {
+    auth.redirectAuthentication();
+  }
 });
 
 unregister();
