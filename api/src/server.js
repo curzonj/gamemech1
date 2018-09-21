@@ -18,11 +18,6 @@ app.use(cors());
 
 authRouter(app);
 
-app.get('/', (req, res) =>
-  res.send(req.user ? 'Authenticated' : 'Unauthenticated')
-);
-app.get('/health', (req, res) => res.send('OK'));
-
 app.use(
   '/graphql',
   graphqlHTTP({
@@ -34,6 +29,12 @@ app.use(
     }),
   })
 );
+
+app.get('/health', (req, res) => res.send('OK'));
+
+app.get('/*', (req, res) => {
+  res.sendFile('../client/build/index.html');
+});
 
 server.on('error', e => {
   console.log(e);

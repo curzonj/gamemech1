@@ -67,7 +67,7 @@ export default function(app) {
       failureRedirect: '/',
     }),
     (req, res) => {
-      res.redirect('/'); // Successful auth
+      res.redirect('/graphql'); // Successful auth
     }
   );
 
@@ -83,6 +83,6 @@ export default function(app) {
 
   app.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
+    res.redirect('/graphql');
   });
 }
