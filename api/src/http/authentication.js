@@ -2,7 +2,6 @@ import passport from 'passport';
 import session from 'express-session';
 import jwt from 'jsonwebtoken';
 import fileStoreFn from 'session-file-store';
-import { redirectToHTTPS } from 'express-http-to-https';
 import passportConfig from './passport';
 import config from '../config';
 import reportError from '../utils/reportError';
@@ -12,9 +11,6 @@ const FileStore = fileStoreFn(session);
 passportConfig(passport);
 
 export default function(app) {
-  // Don't redirect if the hostname is `localhost:port` or the route is `/insecure`
-  app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
-
   app.use(
     session({
       store: new FileStore({

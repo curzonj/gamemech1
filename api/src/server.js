@@ -3,6 +3,7 @@ import http from 'http';
 import morgan from 'morgan';
 import cors from 'cors';
 import graphqlHTTP from 'express-graphql';
+import { redirectToHTTPS } from 'express-http-to-https';
 import schema from './graphql';
 import config from './config';
 import authRouter from './http/authentication';
@@ -10,6 +11,9 @@ import startSimulation from './events/processor';
 
 const app = express();
 const server = http.createServer(app);
+
+// Don't redirect if the hostname is `localhost:port` or the route is `/insecure`
+app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
 
 app.use(express.static('../client/build'));
 
