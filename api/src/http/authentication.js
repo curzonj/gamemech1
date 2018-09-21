@@ -67,15 +67,19 @@ export default function(app) {
     }
   );
 
-  app.post('/login', passport.authenticate('browserDiscord'), (req, res) => {
-    const token = jwt.sign(
-      {
-        account_id: req.user.id,
-      },
-      config.get('JWT_SECRET')
-    );
-    res.send(token);
-  });
+  app.post(
+    '/login',
+    passport.authenticate('browserDiscord', { session: false }),
+    (req, res) => {
+      const token = jwt.sign(
+        {
+          account_id: req.user.id,
+        },
+        config.get('JWT_SECRET')
+      );
+      res.send(token);
+    }
+  );
 
   app.get('/logout', (req, res) => {
     req.logout();

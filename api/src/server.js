@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import graphqlHTTP from 'express-graphql';
 import { redirectToHTTPS } from 'express-http-to-https';
+import path from 'path';
 import schema from './graphql';
 import config from './config';
 import authRouter from './http/authentication';
@@ -37,7 +38,7 @@ app.use(
 app.get('/health', (req, res) => res.send('OK'));
 
 app.get('/*', (req, res) => {
-  res.sendFile('../client/build/index.html');
+  res.sendFile(path.join(__dirname, '../../client/build/index.html'));
 });
 
 server.on('error', e => {

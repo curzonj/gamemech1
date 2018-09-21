@@ -58,9 +58,8 @@ export default function(passport) {
     {
       clientID: config.get('DISCORD_OAUTH_CLIENT_ID'),
       clientSecret: config.get('DISCORD_OAUTH_CLIENT_SECRET'),
-      callbackURL: `${config.get('PUBLIC_URL')}/${config.get(
-        'REACT_APP_OAUTH_CALLBACK_PATH'
-      )}`,
+      callbackURL:
+        config.get('PUBLIC_URL') + config.get('REACT_APP_OAUTH_CALLBACK_PATH'),
       scope: discordScopes,
     },
     translateDiscordProfileToAccount
