@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import HoverPopper from '../components/HoverPopper/HoverPopper';
 import graphql from '../utils/graphql';
 
 const Grid = styled.div`
@@ -52,13 +51,10 @@ export default class AssetList extends Component {
     `
       .then(({ assets }) => {
         const list = assets.map(a => (
-          <HoverPopper fadeDelay={10}>
-            <Cell key={a.id}>
-              {a.quantity}
-              <PaddedText>{a.type.name}</PaddedText>
-            </Cell>
-            <div>The content of the Popper.</div>
-          </HoverPopper>
+          <Cell key={a.id}>
+            {a.quantity}
+            <PaddedText>{a.type.name}</PaddedText>
+          </Cell>
         ));
         this.setState({ buttons: list });
       })

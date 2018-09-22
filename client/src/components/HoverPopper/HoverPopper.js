@@ -2,33 +2,39 @@ import React from 'react';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
 import bind from 'memoize-bind';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import styled from 'styled-components';
+
+const OuterWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ContentWrapper = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
 function PopoverDetailsInner({ classes, children }) {
-  return (
-    <Paper>
-      <Typography className={classes.typography}>{children}</Typography>
-    </Paper>
-  );
+  return <Paper className={classes.padding}>{children}</Paper>;
 }
 
+PopoverDetailsInner.propTypes = {
+  classes: PropTypes.shape({
+    padding: PropTypes.string.isRequired,
+  }).isRequired,
+  children: PropTypes.node.isRequired,
+};
+
 const styles = theme => ({
-  typography: {
+  padding: {
     padding: theme.spacing.unit * 2,
   },
 });
 
 const PopoverDetails = withStyles(styles)(PopoverDetailsInner);
-
-PopoverDetailsInner.propTypes = {
-  classes: PropTypes.shape({
-    typography: PropTypes.string.isRequired,
-  }).isRequired,
-  children: PropTypes.node.isRequired,
-};
 
 class HoverPopper extends React.Component {
   constructor(props) {
@@ -60,22 +66,29 @@ class HoverPopper extends React.Component {
     // TODO this may need to become a prop, but I'd have to figure out what it's for
     const id = open ? 'simple-popper' : null;
 
+    // eslint-disable-next-line prefer-const
+    let [content, ...popoverContent] = this.props.children;
+    popoverContent = popoverContent.filter(c => !!c);
+    if (popoverContent.length === 0) {
+      return content;
+    }
+
     return (
-      <div>
-        <div
+      <OuterWrapper>
+        <ContentWrapper
           onMouseEnter={bind(this.handleMouseEnter, this)}
           onMouseLeave={bind(this.handleMouseLeave, this)}
         >
-          {this.props.children[0]}
-        </div>
+          {content}
+        </ContentWrapper>
         <Popper id={id} open={open} anchorEl={anchorEl} transition>
           {({ TransitionProps }) => (
             <Fade {...TransitionProps} timeout={this.props.fadeDelay}>
-              <PopoverDetails>{this.props.children[1]}</PopoverDetails>
+              <PopoverDetails>{popoverContent}</PopoverDetails>
             </Fade>
           )}
         </Popper>
-      </div>
+      </OuterWrapper>
     );
   }
 }

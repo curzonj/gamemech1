@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import graphql from '../utils/graphql';
+import graphql from '../../utils/graphql';
+import Recipe from './Recipe';
 
 const Grid = styled.div`
   margin: auto;
@@ -10,19 +11,6 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   grid-gap: 20px;
-`;
-
-const ButtonCell = styled.button.attrs({
-  type: 'button',
-})`
-  background-color: #4caf50; /* Green */
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
 `;
 
 export default class RecipeButtons extends Component {
@@ -56,11 +44,7 @@ export default class RecipeButtons extends Component {
     `.then(({ recipes }) => {
       const list = recipes
         .filter(r => r.facilityType.name === 'account')
-        .map(r => (
-          <ButtonCell key={r.id}>
-            {r.resultTypes.map(t => t.name).join(', ')}
-          </ButtonCell>
-        ));
+        .map(r => <Recipe key={r.id} recipe={r} />);
       this.setState({ buttons: list });
     });
   }

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import RecipeButtons from './RecipeButtons';
+import RecipeButtons from './RecipeButtons/RecipeButtons';
 import AssetList from './AssetList';
-import TimerList from './TimerList';
+import TimerList from './TimerList/TimerList';
 
 const Wrapper = styled.div`
   text-align: center;
