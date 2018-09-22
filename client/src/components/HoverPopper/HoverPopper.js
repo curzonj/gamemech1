@@ -4,8 +4,8 @@ import Fade from '@material-ui/core/Fade';
 import bind from 'memoize-bind';
 import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import styled from 'styled-components';
+import styledMaterial from '../../utils/styledMaterial';
 
 const OuterWrapper = styled.div`
   display: flex;
@@ -17,24 +17,9 @@ const ContentWrapper = styled.div`
   width: 100%;
 `;
 
-function PopoverDetailsInner({ classes, children }) {
-  return <Paper className={classes.padding}>{children}</Paper>;
-}
-
-PopoverDetailsInner.propTypes = {
-  classes: PropTypes.shape({
-    padding: PropTypes.string.isRequired,
-  }).isRequired,
-  children: PropTypes.node.isRequired,
-};
-
-const styles = theme => ({
-  padding: {
-    padding: theme.spacing.unit * 2,
-  },
-});
-
-const PopoverDetails = withStyles(styles)(PopoverDetailsInner);
+const StyledPaper = styledMaterial(Paper)(theme => ({
+  padding: theme.spacing.unit * 2,
+}));
 
 class HoverPopper extends React.Component {
   constructor(props) {
@@ -60,26 +45,8 @@ class HoverPopper extends React.Component {
     }));
   }
 
-  handleButtonPress(e) {
-    this.buttonPressTimer = setTimeout(() => {
-      if (!this.state.open) {
-        this.handleMouseEnter(e);
-      }
-      this.longPressed = true;
-    }, 1000);
-  }
-
-  handleButtonRelease(e) {
-    if (this.state.open) {
-      this.handleMouseLeave(e);
-    }
-    clearTimeout(this.buttonPressTimer);
-  }
-
   handleClick(...args) {
-    if (this.longPressed) {
-      delete this.longPressed;
-    } else if (this.props.onClick) {
+    if (this.props.onClick) {
       this.props.onClick(...args);
     }
   }
@@ -107,7 +74,7 @@ class HoverPopper extends React.Component {
           <Popper id={id} open={open} anchorEl={anchorEl} transition>
             {({ TransitionProps }) => (
               <Fade {...TransitionProps} timeout={this.props.fadeDelay}>
-                <PopoverDetails>{popoverContent}</PopoverDetails>
+                <StyledPaper>{popoverContent}</StyledPaper>
               </Fade>
             )}
           </Popper>
