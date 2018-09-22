@@ -99,10 +99,6 @@ class HoverPopper extends React.Component {
         <ContentWrapper
           onMouseEnter={bind(this.handleMouseEnter, this)}
           onMouseLeave={bind(this.handleMouseLeave, this)}
-          onTouchStart={bind(this.handleButtonPress, this)}
-          onTouchEnd={bind(this.handleButtonRelease, this)}
-          onMouseDown={bind(this.handleButtonPress, this)}
-          onMouseUp={bind(this.handleButtonRelease, this)}
           onClick={bind(this.handleClick, this)}
         >
           {content}
