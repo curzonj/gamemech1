@@ -2,17 +2,33 @@ import React from 'react';
 import Popper from '@material-ui/core/Popper';
 import Fade from '@material-ui/core/Fade';
 import bind from 'memoize-bind';
-import styled from 'styled-components';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 
-const TightOuterWrap = styled.div``;
+function PopoverDetailsInner({ classes, children }) {
+  return (
+    <Paper>
+      <Typography className={classes.typography}>{children}</Typography>
+    </Paper>
+  );
+}
 
-const TightInnerWrap = styled.div`
-  position: relative;
-  display: inline-block;
-  /* if you need ie6/7 support */
-  *display: inline;
-  zoom: 1;
-`;
+const styles = theme => ({
+  typography: {
+    padding: theme.spacing.unit * 2,
+  },
+});
+
+const PopoverDetails = withStyles(styles)(PopoverDetailsInner);
+
+PopoverDetailsInner.propTypes = {
+  classes: PropTypes.shape({
+    typography: PropTypes.string.isRequired,
+  }).isRequired,
+  children: PropTypes.node.isRequired,
+};
 
 class HoverPopper extends React.Component {
   constructor(props) {
@@ -40,22 +56,22 @@ class HoverPopper extends React.Component {
 
   render() {
     const { anchorEl, open } = this.state;
+
+    // TODO this may need to become a prop, but I'd have to figure out what it's for
     const id = open ? 'simple-popper' : null;
 
     return (
       <div>
-        <TightOuterWrap>
-          <TightInnerWrap
-            onMouseEnter={bind(this.handleMouseEnter, this)}
-            onMouseLeave={bind(this.handleMouseLeave, this)}
-          >
-            {this.props.children[0]}
-          </TightInnerWrap>
-        </TightOuterWrap>
+        <div
+          onMouseEnter={bind(this.handleMouseEnter, this)}
+          onMouseLeave={bind(this.handleMouseLeave, this)}
+        >
+          {this.props.children[0]}
+        </div>
         <Popper id={id} open={open} anchorEl={anchorEl} transition>
           {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={350}>
-              {this.props.children[1]}
+            <Fade {...TransitionProps} timeout={this.props.fadeDelay}>
+              <PopoverDetails>{this.props.children[1]}</PopoverDetails>
             </Fade>
           )}
         </Popper>
@@ -63,5 +79,14 @@ class HoverPopper extends React.Component {
     );
   }
 }
+
+HoverPopper.propTypes = {
+  fadeDelay: PropTypes.number,
+  children: PropTypes.node.isRequired,
+};
+
+HoverPopper.defaultProps = {
+  fadeDelay: 350,
+};
 
 export default HoverPopper;

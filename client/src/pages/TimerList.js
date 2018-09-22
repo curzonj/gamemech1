@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import HoverPopper from '../components/HoverPopper/HoverPopper';
 import graphql from '../utils/graphql';
 import safe from '../shared/try_catch';
 
@@ -20,7 +21,6 @@ const Cell = styled.div`
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
   font-size: 16px;
 `;
 
@@ -68,29 +68,29 @@ export default class AssetList extends Component {
         const list = assetInstances.map(a => {
           const currentTimer = safe(() => a.timers.filter(t => t.listHead)[0]);
           return (
-            <Cell key={a.id}>
-              {a.type.name}
-              <br />
-              {a.timerBlockedType ? (
-                <span>
-                  Blocked on:
-                  <PaddedText>{a.timerBlockedType.name}</PaddedText>
-                </span>
-              ) : (
-                <span />
-              )}
-              <br />
-              {currentTimer ? (
-                <span>
-                  Producing:
-                  <PaddedText>
-                    {safe(() => currentTimer.recipe.resultTypes[0].name)}
-                  </PaddedText>
-                </span>
-              ) : (
-                <span />
-              )}
-            </Cell>
+            <HoverPopper fadeDelay={10}>
+              <Cell key={a.id}>{a.type.name}</Cell>
+              <div>
+                {a.timerBlockedType ? (
+                  <span>
+                    Blocked on:
+                    <PaddedText>{a.timerBlockedType.name}</PaddedText>
+                  </span>
+                ) : (
+                  <span />
+                )}
+                {currentTimer ? (
+                  <span>
+                    Producing:
+                    <PaddedText>
+                      {safe(() => currentTimer.recipe.resultTypes[0].name)}
+                    </PaddedText>
+                  </span>
+                ) : (
+                  <span />
+                )}
+              </div>
+            </HoverPopper>
           );
         });
         this.setState({ buttons: list });

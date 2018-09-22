@@ -1,17 +1,11 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import HoverPopper from './HoverPopper';
 
-const styles = theme => ({
-  typography: {
-    padding: theme.spacing.unit * 2,
-  },
-});
+const Wrapper = styled.div`
+  display: inline-block;
+`;
 
 const Cell = styled.div`
   background-color: purple;
@@ -20,29 +14,42 @@ const Cell = styled.div`
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
   font-size: 16px;
 `;
 
-function MyComponent(props) {
-  return (
+const stories = storiesOf('HoverPopper', module);
+stories.add('basic', () => (
+  <Wrapper>
     <HoverPopper>
       <Cell>Some Details</Cell>
-      <Paper>
-        <Typography className={props.classes.typography}>
-          The content of the Popper.
-        </Typography>
-      </Paper>
+      <div>The content of the Popper.</div>
     </HoverPopper>
-  );
-}
+  </Wrapper>
+));
 
-const Wrapped = withStyles(styles)(MyComponent);
+const Grid = styled.div`
+  margin: auto;
+  margin-top: 20px;
+  width: 50%;
 
-MyComponent.propTypes = {
-  classes: PropTypes.shape({
-    typography: PropTypes.string,
-  }).isRequired,
-};
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-gap: 20px;
+`;
 
-storiesOf('HoverPopper', module).add('basic', () => <Wrapped />);
+stories.add('grid', () => (
+  <Grid>
+    <HoverPopper fadeDelay={10}>
+      <Cell>Some Details</Cell>
+      <div>The content of the Popper.</div>
+    </HoverPopper>
+    <HoverPopper fadeDelay={10}>
+      <Cell>Some Details</Cell>
+      <div>The content of the Popper.</div>
+    </HoverPopper>
+    <HoverPopper fadeDelay={10}>
+      <Cell>Some Details</Cell>
+      <div>The content of the Popper.</div>
+    </HoverPopper>
+  </Grid>
+));
