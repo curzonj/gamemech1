@@ -23,8 +23,8 @@ const PaddedText = styled.span`
   margin-left: 0.25em;
 `;
 
-function onClick(e) {
-  console.log(e);
+function onClick() {
+  alert('Clicked');
 }
 
 export default function Recipe({ recipe: r }) {
