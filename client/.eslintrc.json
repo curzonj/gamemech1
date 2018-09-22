@@ -9,8 +9,18 @@
     "jest": true
   },
   "rules": {
+    "jsx-a11y/label-has-for": 0,
+    "jsx-a11y/label-has-associated-control": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "jsx-a11y/anchor-is-valid": 0,
+
     "no-param-reassign": 0,
     "no-console": 0,
+
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+
+    "react/jsx-boolean-value": ["always"],
     "react/destructuring-assignment": 0,
     "react/jsx-filename-extension": [
       "error",

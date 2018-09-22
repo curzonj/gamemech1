@@ -5,7 +5,11 @@
   "dependencies": {
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
+    "graphql": "^14.0.2",
+    "graphql-anywhere": "^4.1.19",
+    "graphql-tag": "^2.9.2",
     "locallyjs": "^0.3.3",
+    "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts": "^1.1.5",
@@ -16,9 +20,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "lint": "eslint --fix src; true",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -s ./public -p 9001 -c .storybook"
   },
   "devDependencies": {
+    "@storybook/react": "^3.4.11",
     "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^3.0.1",
