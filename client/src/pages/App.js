@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import RecipeButtons from './RecipeButtons';
+import AssetList from './AssetList';
+import TimerList from './TimerList';
 
 const Wrapper = styled.div`
   text-align: center;
@@ -16,11 +19,7 @@ const Title = styled.h1`
   font-size: 1.5em;
 `;
 
-const Intro = styled.p`
-  font-size: large;
-`;
-
-class App extends Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -32,12 +31,10 @@ class App extends Component {
         <Header>
           <Title>Welcome to gamemech1</Title>
         </Header>
-        <Intro>
-          <span>details here</span>
-        </Intro>
+        <RecipeButtons />
+        <AssetList />
+        <TimerList />
       </Wrapper>
     );
   }
 }
-
-export default App;

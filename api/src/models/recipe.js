@@ -1,3 +1,6 @@
+import DataLoader from 'dataloader';
+import { Op } from 'sequelize';
+
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
     'recipe',
@@ -78,6 +81,28 @@ module.exports = (sequelize, DataTypes) => {
       recipe: (root, args) => model.findById(args.id),
       recipes: () => model.findAll(),
     },
+  };
+
+  model.dataloader = function dataloader(req) {
+    if (!req.loaders) {
+      req.loaders = {};
+    }
+
+    if (!req.loaders.recipe) {
+      req.loaders.recipe = new DataLoader(async keys => {
+        const list = await model.findAll({
+          where: {
+            id: {
+              [Op.in]: keys,
+            },
+          },
+        });
+
+        return keys.map(k => list.find(obj => obj.id === k));
+      });
+    }
+
+    return req.loaders.recipe;
   };
 
   model.prototype.facilityType = function type() {

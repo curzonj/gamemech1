@@ -1,6 +1,6 @@
 import { injectAuthHeader } from './authentication';
 
-export default function graphql(q) {
+export default function graphql([q]) {
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',

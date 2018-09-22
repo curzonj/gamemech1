@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       }
 
       type Asset {
+        id: ID
         type: Type
         location: Location
         quantity: Int
@@ -49,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
 
   model.resolvers = {
     Asset: {
+      id: gqlAuth((req, args, root) => `${root.typeId}-${root.locationId}`),
       type: gqlAuth((req, args, root) =>
         model.db.type.dataloader(req).load(root.typeId)
       ),

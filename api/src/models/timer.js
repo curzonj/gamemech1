@@ -1,4 +1,5 @@
 import gqlAuth from '../utils/gqlAuth';
+import safe from '../shared/try_catch';
 
 module.exports = (sequelize, DataTypes) => {
   const model = sequelize.define(
@@ -56,11 +57,21 @@ module.exports = (sequelize, DataTypes) => {
         retries: Int
         nextId: ID
         listHead: Boolean
-        details: JSON
+        runs: Int
+        recipe: Recipe
       }
     `;
 
   model.resolvers = {
+    Timer: {
+      runs: gqlAuth(async (req, args, root) => safe(() => root.details.runs)),
+      recipe: gqlAuth((req, args, root) => {
+        const id = safe(() => root.details.recipeId);
+        if (id) {
+          return model.db.recipe.dataloader(req).load(id);
+        }
+      }),
+    },
     Query: {
       now: () => new Date(),
       timer: gqlAuth((req, { id }) =>
