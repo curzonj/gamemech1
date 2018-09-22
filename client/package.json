@@ -3,17 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.1.0",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
     "graphql": "^14.0.2",
     "graphql-anywhere": "^4.1.19",
     "graphql-tag": "^2.9.2",
     "locallyjs": "^0.3.3",
+    "memoize-bind": "^1.0.3",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts": "^1.1.5",
-    "styled-components": "^3.4.9"
+    "styled-components": "^3.4.9",
+    "styled-system": "^3.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
