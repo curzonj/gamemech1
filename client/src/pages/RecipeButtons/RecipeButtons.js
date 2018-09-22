@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import graphql from '../../utils/graphql';
 import Recipe from './Recipe';
@@ -13,7 +13,7 @@ const Grid = styled.div`
   grid-gap: 20px;
 `;
 
-export default class RecipeButtons extends Component {
+export default class RecipeButtons extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};

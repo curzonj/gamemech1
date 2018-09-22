@@ -60,6 +60,30 @@ class HoverPopper extends React.Component {
     }));
   }
 
+  handleButtonPress(e) {
+    this.buttonPressTimer = setTimeout(() => {
+      if (!this.state.open) {
+        this.handleMouseEnter(e);
+      }
+      this.longPressed = true;
+    }, 1000);
+  }
+
+  handleButtonRelease(e) {
+    if (this.state.open) {
+      this.handleMouseLeave(e);
+    }
+    clearTimeout(this.buttonPressTimer);
+  }
+
+  handleClick(...args) {
+    if (this.longPressed) {
+      delete this.longPressed;
+    } else if (this.props.onClick) {
+      this.props.onClick(...args);
+    }
+  }
+
   render() {
     const { anchorEl, open } = this.state;
 
@@ -69,25 +93,29 @@ class HoverPopper extends React.Component {
     // eslint-disable-next-line prefer-const
     let [content, ...popoverContent] = this.props.children;
     popoverContent = popoverContent.filter(c => !!c);
-    if (popoverContent.length === 0) {
-      return content;
-    }
 
     return (
       <OuterWrapper>
         <ContentWrapper
           onMouseEnter={bind(this.handleMouseEnter, this)}
           onMouseLeave={bind(this.handleMouseLeave, this)}
+          onTouchStart={bind(this.handleButtonPress, this)}
+          onTouchEnd={bind(this.handleButtonRelease, this)}
+          onMouseDown={bind(this.handleButtonPress, this)}
+          onMouseUp={bind(this.handleButtonRelease, this)}
+          onClick={bind(this.handleClick, this)}
         >
           {content}
         </ContentWrapper>
-        <Popper id={id} open={open} anchorEl={anchorEl} transition>
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={this.props.fadeDelay}>
-              <PopoverDetails>{popoverContent}</PopoverDetails>
-            </Fade>
-          )}
-        </Popper>
+        {popoverContent.length > 0 && (
+          <Popper id={id} open={open} anchorEl={anchorEl} transition>
+            {({ TransitionProps }) => (
+              <Fade {...TransitionProps} timeout={this.props.fadeDelay}>
+                <PopoverDetails>{popoverContent}</PopoverDetails>
+              </Fade>
+            )}
+          </Popper>
+        )}
       </OuterWrapper>
     );
   }
@@ -95,11 +123,13 @@ class HoverPopper extends React.Component {
 
 HoverPopper.propTypes = {
   fadeDelay: PropTypes.number,
+  onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
 };
 
 HoverPopper.defaultProps = {
   fadeDelay: 350,
+  onClick: () => null,
 };
 
 export default HoverPopper;

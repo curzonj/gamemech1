@@ -23,9 +23,13 @@ const PaddedText = styled.span`
   margin-left: 0.25em;
 `;
 
+function onClick(e) {
+  console.log(e);
+}
+
 export default function Recipe({ recipe: r }) {
   return (
-    <HoverPopper fadeDelay={10}>
+    <HoverPopper fadeDelay={10} onClick={onClick}>
       <ButtonCell>{r.resultTypes.map(t => t.name).join(', ')}</ButtonCell>
       {r.consumableTypes.length > 0 && (
         <Typography>
