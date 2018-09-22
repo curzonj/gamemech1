@@ -20,6 +20,12 @@
 
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
 
+    "react/prop-types": [
+      "error",
+      {
+        "ignore": ["classes"]
+      }
+    ],
     "react/jsx-boolean-value": ["always"],
     "react/destructuring-assignment": 0,
     "react/jsx-filename-extension": [

@@ -5,7 +5,7 @@ import bind from 'memoize-bind';
 import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import styledMaterial from '../../utils/styledMaterial';
+import materialStyled from '../../utils/materialStyled';
 
 const OuterWrapper = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const ContentWrapper = styled.div`
   width: 100%;
 `;
 
-const StyledPaper = styledMaterial(Paper)(theme => ({
+const StyledPaper = materialStyled(Paper)(theme => ({
   padding: theme.spacing.unit * 2,
 }));
 

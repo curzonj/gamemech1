@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 // Taken from https://github.com/oliviertassinari/material-ui/blob/56efe9fbd675bad84dcdb65faa2aae2ff5c9473d/docs/src/pages/customization/StyledComponents.js
 
-export default function styledMaterial(Component) {
+export default function materialStyled(Component) {
   return (style, options) => {
     function StyledComponent(props) {
       const { classes, className, ...other } = props;
