@@ -2,7 +2,7 @@
   "name": "gamemech",
   "version": "1.0.0",
   "scripts": {
-    "heroku-postbuild": "(cd api; ../bin/build.sh) && (cd client; ../bin/build.sh)",
+    "heroku-postbuild": "bin/build.sh",
     "start": "cd api; node dist/server.js"
   },
   "cacheDirectories": [
