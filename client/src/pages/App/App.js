@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import RecipeButtons from '../RecipeButtons/RecipeButtons';
+import RecipeButtonGrid from '../RecipeButtonGrid/RecipeButtonGrid';
 import AssetList from '../AssetList';
 import TimerList from '../TimerList/TimerList';
 import AppBar from './AppBar';
@@ -19,7 +19,7 @@ export default function() {
       <AppBar />
 
       <Wrapper>
-        <RecipeButtons />
+        <RecipeButtonGrid />
         <AssetList />
         <TimerList />
       </Wrapper>

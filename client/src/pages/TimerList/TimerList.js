@@ -52,10 +52,14 @@ export default class TimerList extends React.Component {
         }
       }
     `
-      .then(({ assetInstances }) => {
-        this.setState({
-          buttons: assetInstances.map(a => <Asset key={a.id} asset={a} />),
-        });
+      .then(({ data: { assetInstances }, errors }) => {
+        if (errors) {
+          console.log(errors);
+        } else {
+          this.setState({
+            buttons: assetInstances.map(a => <Asset key={a.id} asset={a} />),
+          });
+        }
       })
       .catch(e => reportError(e));
   }

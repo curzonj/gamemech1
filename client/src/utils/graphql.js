@@ -1,6 +1,6 @@
 import { injectAuthHeader } from './authentication';
 
-export default function graphql([q]) {
+export function post(q, v = {}) {
   const headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -11,15 +11,17 @@ export default function graphql([q]) {
   return fetch(`${process.env.REACT_APP_API_ENDPOINT}/graphql`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ query: q }),
+    body: JSON.stringify({
+      query: q,
+      variables: v,
+    }),
   }).then(async r => {
     const body = await r.json();
 
-    if (body.errors) {
-      console.log(body.errors);
-      throw new Error('Graphql request failed');
-    }
-
-    return body.data;
+    return { data: body.data, errors: body.errors };
   });
+}
+
+export default function graphql([q]) {
+  return post(q);
 }

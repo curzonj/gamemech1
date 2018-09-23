@@ -40,7 +40,9 @@ export default function Asset({ asset: a }) {
               {currentTimer.recipe.resultTypes.map(t => t.name).join(', ')}
             </PaddedText>
           </Typography>
-          <Typography>{moment(currentTimer.triggerAt).fromNow()}</Typography>
+          {currentTimer.triggerAt && (
+            <Typography>{moment(currentTimer.triggerAt).fromNow()}</Typography>
+          )}
           {currentTimer.recipe.consumableTypes.length > 0 && (
             <Typography>
               from

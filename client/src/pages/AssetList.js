@@ -49,14 +49,18 @@ export default class AssetList extends Component {
         }
       }
     `
-      .then(({ assets }) => {
-        const list = assets.map(a => (
-          <Cell key={a.id}>
-            {a.quantity}
-            <PaddedText>{a.type.name}</PaddedText>
-          </Cell>
-        ));
-        this.setState({ buttons: list });
+      .then(({ data: { assets }, errors }) => {
+        if (errors) {
+          console.log(errors);
+        } else {
+          const list = assets.map(a => (
+            <Cell key={a.id}>
+              {a.quantity}
+              <PaddedText>{a.type.name}</PaddedText>
+            </Cell>
+          ));
+          this.setState({ buttons: list });
+        }
       })
       .catch(e => console.log(e));
   }

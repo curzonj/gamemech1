@@ -35,9 +35,7 @@ export default function MyAppBar() {
           <MenuButton color="inherit" aria-label="Menu">
             <MenuIcon />
           </MenuButton>
-          <StretchTypography color="inherit" variant="title">
-            News
-          </StretchTypography>
+          <StretchTypography color="inherit" variant="title" />
           <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>
