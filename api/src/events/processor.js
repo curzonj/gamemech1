@@ -96,7 +96,6 @@ export default function runSimulation() {
   const deadline = new Date();
   deadline.setSeconds(deadline.getSeconds() + workerIntervalSeconds);
 
-  console.log(`running the job select with deadline ${deadline}`);
   db.timer
     .findAll({
       attributes: ['id', 'triggerAt'],
@@ -118,13 +117,9 @@ export default function runSimulation() {
         // If we max out the result set, don't sleep
         // before the next run
         if (rows.length > 0) {
-          console.log(`running sim again because > 0 rows: ${rows.length}`);
           return runSimulation();
         }
 
-        console.log(
-          `running sim again at ${deadline} it's currently ${new Date()}`
-        );
         return runAt(deadline, runSimulation);
       })
     )
