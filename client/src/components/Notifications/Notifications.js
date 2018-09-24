@@ -23,20 +23,20 @@ class ConsecutiveSnackbars extends React.Component {
     };
   }
 
-  componentDidUpdate({ notificationMessage: prev }) {
-    const { notificationMessage } = this.props;
+  componentDidUpdate({ notificationMessageKey: prev }) {
+    const { notificationMessageKey } = this.props;
 
-    if (!notificationMessage) {
+    if (!notificationMessageKey) {
       return;
     }
 
-    if (prev === notificationMessage) {
+    if (prev === notificationMessageKey) {
       return;
     }
 
     this.queue.push({
-      message: notificationMessage,
-      key: new Date().getTime(),
+      message: this.props.notificationMessage,
+      key: this.props.notificationMessageKey,
     });
 
     // immediately begin dismissing current message
@@ -107,10 +107,12 @@ class ConsecutiveSnackbars extends React.Component {
 
 ConsecutiveSnackbars.propTypes = {
   notificationMessage: PropTypes.string,
+  notificationMessageKey: PropTypes.number,
 };
 
 ConsecutiveSnackbars.defaultProps = {
   notificationMessage: null,
+  notificationMessageKey: null,
 };
 
 export default withUserNotifications(withStyles(styles)(ConsecutiveSnackbars));
