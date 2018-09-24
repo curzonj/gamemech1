@@ -2,7 +2,6 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import RecipeButtonGrid from './RecipeButtonGrid';
 import { fragment } from './RecipeButton';
-import withActions from './withActions';
 
 export default graphql(
   gql`
@@ -14,10 +13,10 @@ export default graphql(
     ${fragment}
   `,
   {
-    props({ data: { recipes, ...rest }, ...props }) {
+    props({ data: { recipes }, ownProps }) {
       const list =
         recipes && recipes.filter(r => r.facilityType.name === 'account');
-      return { data: { recipes: list, ...rest }, ...props };
+      return { data: { recipes: list }, ownProps };
     },
   }
-)(withActions(RecipeButtonGrid));
+)(RecipeButtonGrid);

@@ -3,8 +3,8 @@ import { propType } from 'graphql-anywhere';
 import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import Grid from '../../components/ButtonGrid';
-import PaddedText from '../../components/PaddedText';
 import Cell from '../../components/GridButton';
+import PaddedText from '../../components/PaddedText';
 
 export const fragment = gql`
   fragment AssetListFragment on Asset {

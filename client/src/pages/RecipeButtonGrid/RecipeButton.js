@@ -46,11 +46,11 @@ function consumablesText(r) {
 }
 
 function RecipeButton({ recipe: r, onClick }) {
+  const names = r.resultTypes.map(t => t.name).join(', ');
+
   return (
-    <HoverPopper fadeDelay={10} onClick={bind(onClick, null, r.id)}>
-      <ButtonCell color="#4caf50">
-        {r.resultTypes.map(t => t.name).join(', ')}
-      </ButtonCell>
+    <HoverPopper fadeDelay={10} onClick={bind(onClick, null, r.id, names)}>
+      <ButtonCell color="#4caf50">{names}</ButtonCell>
       {r.consumableTypes.length > 0 && (
         <Typography>
           takes

@@ -26,6 +26,7 @@
         "ignore": ["classes"]
       }
     ],
+    "react/jsx-one-expression-per-line": 0,
     "react/jsx-boolean-value": ["always"],
     "react/destructuring-assignment": 0,
     "react/jsx-filename-extension": [

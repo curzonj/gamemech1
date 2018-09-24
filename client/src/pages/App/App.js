@@ -5,6 +5,7 @@ import AssetList from '../AssetList';
 import TimerButtonGrid from '../TimerButtonGrid';
 import AppBar from './AppBar';
 import MaterialTheme from './MaterialTheme';
+import Notifications from '../../components/Notifications/Notifications';
 
 // This gives the AppBar enough space at the bottom
 const Wrapper = styled.div`
@@ -23,6 +24,8 @@ export default function() {
         <AssetList />
         <TimerButtonGrid />
       </Wrapper>
+
+      <Notifications />
     </MaterialTheme>
   );
 }
