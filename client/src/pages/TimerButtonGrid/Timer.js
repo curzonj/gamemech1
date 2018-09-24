@@ -3,29 +3,16 @@ import moment from 'moment';
 import Typography from '@material-ui/core/Typography';
 import gql from 'graphql-tag';
 import { propType } from 'graphql-anywhere';
-import styled from 'styled-components';
 import HoverPopper from '../../components/HoverPopper/HoverPopper';
 import safe from '../../shared/try_catch';
+import Cell from '../../components/GridButton';
+import PaddedText from '../../components/PaddedText';
 
-const Cell = styled.div`
-  background-color: purple;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
-`;
-
-const PaddedText = styled.span`
-  margin-left: 0.25em;
-`;
-
-export default function Asset({ asset: a }) {
+export default function Timer({ asset: a }) {
   const currentTimer = safe(() => a.timers.filter(t => t.listHead)[0]);
   return (
     <HoverPopper fadeDelay={10}>
-      <Cell>{a.type.name}</Cell>
+      <Cell color="purple">{a.type.name}</Cell>
       {a.timerBlockedType && (
         <Typography>
           Blocked on:
@@ -59,38 +46,36 @@ export default function Asset({ asset: a }) {
   );
 }
 
-Asset.fragments = {
-  asset: gql`
-    fragment AssetInstanceFragment on AssetInstance {
+export const fragment = gql`
+  fragment AssetInstanceFragment on AssetInstance {
+    id
+    type {
+      name
+    }
+    timerBlockedType {
       id
-      type {
-        name
-      }
-      timerBlockedType {
-        id
-        name
-      }
-      timerBlockedQuantity
-      timers {
-        id
-        triggerAt
-        retries
-        nextId
-        listHead
-        runs
-        recipe {
-          resultTypes {
-            name
-          }
-          consumableTypes {
-            name
-          }
+      name
+    }
+    timerBlockedQuantity
+    timers {
+      id
+      triggerAt
+      retries
+      nextId
+      listHead
+      runs
+      recipe {
+        resultTypes {
+          name
+        }
+        consumableTypes {
+          name
         }
       }
     }
-  `,
-};
+  }
+`;
 
-Asset.propTypes = {
-  asset: propType(Asset.fragments.asset).isRequired,
+Timer.propTypes = {
+  asset: propType(fragment).isRequired,
 };

@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import RecipeButtonGrid from '../RecipeButtonGrid/RecipeButtonGrid';
+import RecipeButtonGrid from '../RecipeButtonGrid';
 import AssetList from '../AssetList';
-import TimerList from '../TimerList/TimerList';
+import TimerButtonGrid from '../TimerButtonGrid';
 import AppBar from './AppBar';
 import MaterialTheme from './MaterialTheme';
 
@@ -21,7 +21,7 @@ export default function() {
       <Wrapper>
         <RecipeButtonGrid />
         <AssetList />
-        <TimerList />
+        <TimerButtonGrid />
       </Wrapper>
     </MaterialTheme>
   );

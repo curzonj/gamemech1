@@ -1,21 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import { propType } from 'graphql-anywhere';
 import PropTypes from 'prop-types';
-import RecipeButton from './RecipeButton';
-import withData, { fragment } from './withData';
+import RecipeButton, { fragment } from './RecipeButton';
+import Grid from '../../components/ButtonGrid';
 
-const Grid = styled.div`
-  margin: auto;
-  margin-top: 20px;
-  width: 50%;
-
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  grid-gap: 20px;
-`;
-
-function RecipeButtonGrid({ recipes, ...props }) {
+export default function RecipeButtonGrid({ data: { recipes }, ...props }) {
   return (
     <Grid>
       {recipes &&
@@ -25,11 +14,7 @@ function RecipeButtonGrid({ recipes, ...props }) {
 }
 
 RecipeButtonGrid.propTypes = {
-  recipes: PropTypes.arrayOf(propType(fragment)),
+  data: PropTypes.shape({
+    recipes: PropTypes.arrayOf(propType(fragment)),
+  }).isRequired,
 };
-
-RecipeButtonGrid.defaultProps = {
-  recipes: [],
-};
-
-export default withData(RecipeButtonGrid);
