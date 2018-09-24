@@ -67,6 +67,8 @@ module.exports = (sequelize, DataTypes) => {
         if (queue) {
           return queue.blockedQuantity;
         }
+
+        return null;
       }),
       timerBlockedType: gqlAuth(async (req, args, root, info) => {
         const queue = await model.db.timerQueue.findOne({
@@ -79,6 +81,8 @@ module.exports = (sequelize, DataTypes) => {
         if (queue) {
           return model.db.type.findById(queue.blockedTypeId);
         }
+
+        return null;
       }),
     },
     Query: {

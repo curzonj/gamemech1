@@ -11,20 +11,21 @@ const maxFailedJobRetries = 5;
 const workerIntervalSeconds = 5;
 const dbQueryResultsLimit = parseInt(config.get('TIMER_CONCURRENCY'), 10);
 
-async function startNextJob(queue, job, t, now) {
-  if (job.nextId === null) {
+async function startNextJob(queue, nextId, t, now) {
+  if (nextId === null) {
     return;
   }
 
-  const next = await db.timer.findById(job.nextId, {
+  const next = await db.timer.findById(nextId, {
     transaction: t,
     lock: t.LOCK.UPDATE,
   });
 
   const ok = await utils.prepareJobToRun(queue, next, t, now);
   if (!ok) {
-    await startNextJob(queue, next, t, now);
-    await next.destroy();
+    const { nextId: nextNextId } = next;
+    await next.destroy({ transaction: t });
+    await startNextJob(queue, nextNextId, t, now);
   }
 }
 
@@ -51,6 +52,10 @@ function handleJobId(jobId) {
         });
       }
 
+      if (!job.repeat) {
+        await job.destroy({ transaction: t });
+      }
+
       if (job.nextId !== null || job.repeat) {
         // TODO eventually I want to support containerIds different than the location
         // of the asset. Like having timers on ships and them being a container for
@@ -64,7 +69,7 @@ function handleJobId(jobId) {
           t
         );
 
-        await startNextJob(queue, job, t, job.triggerAt);
+        await startNextJob(queue, job.nextId, t, job.triggerAt);
 
         if (job.repeat) {
           await job.update(
@@ -73,10 +78,6 @@ function handleJobId(jobId) {
           );
           await utils.scheduleTimer(queue, job, false, t);
         }
-      }
-
-      if (!job.repeat) {
-        await job.destroy({ transaction: t });
       }
     })
     .catch(err => {
@@ -95,6 +96,7 @@ export default function runSimulation() {
   const deadline = new Date();
   deadline.setSeconds(deadline.getSeconds() + workerIntervalSeconds);
 
+  console.log(`running the job select with deadline ${deadline}`);
   db.timer
     .findAll({
       attributes: ['id', 'triggerAt'],
@@ -116,8 +118,13 @@ export default function runSimulation() {
         // If we max out the result set, don't sleep
         // before the next run
         if (rows.length > 0) {
+          console.log(`running sim again because > 0 rows: ${rows.length}`);
           return runSimulation();
         }
+
+        console.log(
+          `running sim again at ${deadline} it's currently ${new Date()}`
+        );
         return runAt(deadline, runSimulation);
       })
     )

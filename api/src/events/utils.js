@@ -112,6 +112,9 @@ export async function prepareJobToRun(queue, job, t, now = new Date()) {
   }
 
   await job.update(values, { transaction: t });
+
+  // TODO add a type assertion on this function or enable consistent returns eslint rule
+  return true;
 }
 
 export async function createTimer(values, t, now) {

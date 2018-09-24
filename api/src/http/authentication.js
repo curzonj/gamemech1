@@ -32,13 +32,15 @@ export default function(app) {
   app.use((req, res, next) => {
     if (req.user) {
       // we are already logged in via the session, skip jwt processing
-      return next();
+      next();
+      return;
     }
 
     passport.authenticate('jwt', (err, user, info) => {
       if (err || !user) {
         reportError(err);
-        return next();
+        next();
+        return;
       }
 
       req.logIn(
@@ -52,7 +54,7 @@ export default function(app) {
             reportError(err);
           }
 
-          return next();
+          next();
         }
       );
     })(req, res, next);

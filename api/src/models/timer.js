@@ -70,6 +70,8 @@ module.exports = (sequelize, DataTypes) => {
         if (id) {
           return model.db.recipe.dataloader(req).load(id);
         }
+
+        return null;
       }),
     },
     Query: {
