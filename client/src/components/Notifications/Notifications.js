@@ -81,7 +81,7 @@ class ConsecutiveSnackbars extends React.Component {
             horizontal: 'left',
           }}
           open={this.state.open}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={bind(this.handleClose, this)}
           onExited={bind(this.handleExited, this)}
           ContentProps={{
